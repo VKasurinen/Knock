@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -37,8 +38,8 @@ fun KnockAvatarPhoto(
     /** Anything Coil can load, e.g. a picked image's bytes. Defaults to [imageUrl] */
     imageModel: Any? = imageUrl,
     onClick: (() -> Unit)? = null,
-    textColor: Color = MaterialTheme.colorScheme.extended.textSecondary,
-    backgroundColor: Color = MaterialTheme.colorScheme.extended.surfaceHigher
+    textColor: Color = MaterialTheme.colorScheme.extended.onAvatar,
+    backgroundColor: Color = MaterialTheme.colorScheme.extended.avatarBackground
 ) {
     Box(
         modifier = modifier
@@ -79,6 +80,21 @@ fun KnockAvatarPhoto(
 @Composable
 @Preview
 fun KnockAvatarPhotoPreview() {
+    KnockTheme {
+        KnockAvatarPhoto(
+            displayText = "PL",
+            size = AvatarSize.LARGE
+        )
+    }
+}
+
+
+@Composable
+@Preview (
+    showBackground = true,
+    uiMode = UI_MODE_NIGHT_YES
+)
+fun KnockAvatarPhotoPreview2() {
     KnockTheme {
         KnockAvatarPhoto(
             displayText = "PL",

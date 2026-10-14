@@ -70,6 +70,10 @@ data class ExtendedColors(
     val quoteName: Color,
     val online: Color,
 
+    // Default avatar (initials) – stronger than surface-higher so it stands out on the top bar
+    val avatarBackground: Color,
+    val onAvatar: Color,
+
     // Sender colors used for names and avatar initials in group chats
     val senderColors: List<Color>,
 )
@@ -118,6 +122,9 @@ val LightExtendedColors = ExtendedColors(
     onAccentBrand = KnockWood850,
     quoteName = KnockCaramel800,
     online = KnockSage500,
+
+    avatarBackground = KnockWood300,
+    onAvatar = KnockWood850,
 
     senderColors = listOf(
         KnockSenderCaramel,
@@ -172,6 +179,9 @@ val DarkExtendedColors = ExtendedColors(
     onAccentBrand = KnockEspresso1000,
     quoteName = KnockBuff500,
     online = KnockSage300,
+
+    avatarBackground = KnockWood300,
+    onAvatar = KnockEspresso900,
 
     senderColors = listOf(
         KnockSenderDarkCaramel,
