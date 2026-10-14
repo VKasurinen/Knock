@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="file">Tiedosto</string>
+    <string name="new_window">Uusi ikkuna</string>
+    <string name="app_theme">Teema</string>
+</resources>

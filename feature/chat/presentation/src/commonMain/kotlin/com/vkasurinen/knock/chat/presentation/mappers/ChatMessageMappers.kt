@@ -1,0 +1,45 @@
+package com.vkasurinen.knock.chat.presentation.mappers
+
+import com.vkasurinen.knock.chat.domain.models.MessageWithSender
+import com.vkasurinen.knock.chat.presentation.model.MessageUi
+import com.vkasurinen.knock.chat.presentation.util.DateUtils
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+
+
+fun List<MessageWithSender>.toUiList(localUserId: String): List<MessageUi> {
+    return this
+        .sortedByDescending { it.message.createdAt }
+        .groupBy {
+            it.message.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).date
+        }
+        .flatMap { (date, messages) ->
+            messages.map { it.toUi(localUserId) } + MessageUi.DateSeparator(
+                id = date.toString(),
+                date = DateUtils.formatDateSeparator(date)
+            )
+        }
+}
+
+fun MessageWithSender.toUi(
+    localUserId: String,
+): MessageUi {
+    val isFromLocalUser = this.sender.userId == localUserId
+    return if(isFromLocalUser) {
+        MessageUi.LocalUserMessage(
+            id = message.id,
+            content = message.content,
+            deliveryStatus = message.deliveryStatus,
+            formattedSentTime = DateUtils.formatBubbleTime(instant = message.createdAt),
+            attachments = message.attachments
+        )
+    } else {
+        MessageUi.OtherUserMessage(
+            id = message.id,
+            content = message.content,
+            formattedSentTime = DateUtils.formatBubbleTime(instant = message.createdAt),
+            sender = sender.toUi(),
+            attachments = message.attachments
+        )
+    }
+}

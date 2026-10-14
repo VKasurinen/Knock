@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single color version for themed icons: door frame, panels and knock waves -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.9"
+        android:scaleY="0.9"
+        android:translateX="23.7"
+        android:translateY="23.9">
+        <path
+            android:fillType="evenOdd"
+            android:pathData="M12 10C12 8.34315 13.3431 7 15 7H41C42.6569 7 44 8.34315 44 10V57H12V10Z M16 12C16 11.4477 16.4477 11 17 11H39C39.5523 11 40 11.4477 40 12V57H16V12Z"
+            android:fillColor="#FFFFFFFF" />
+        <path
+            android:pathData="M20 16.5C20 15.6716 20.6716 15 21.5 15H34.5C35.3284 15 36 15.6716 36 16.5V28.5C36 29.3284 35.3284 30 34.5 30H21.5C20.6716 30 20 29.3284 20 28.5V16.5Z"
+            android:fillColor="#FFFFFFFF" />
+        <path
+            android:pathData="M20 37.5C20 36.6716 20.6716 36 21.5 36H34.5C35.3284 36 36 36.6716 36 37.5V51.5C36 52.3284 35.3284 53 34.5 53H21.5C20.6716 53 20 52.3284 20 51.5V37.5Z"
+            android:fillColor="#FFFFFFFF" />
+        <path
+            android:pathData="M8 58C8 56.8954 8.89543 56 10 56H46C47.1046 56 48 56.8954 48 58C48 59.1046 47.1046 60 46 60H10C8.89543 60 8 59.1046 8 58Z"
+            android:fillColor="#FFFFFFFF" />
+        <path
+            android:pathData="M49 26C49.8513 26.7507 50.533 27.674 51 28.7085C51.467 29.743 51.7085 30.865 51.7085 32C51.7085 33.135 51.467 34.257 51 35.2915C50.533 36.326 49.8513 37.2493 49 38"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M54.5 21C56.0146 22.4042 57.2229 24.1059 58.0492 25.9988C58.8755 27.8916 59.302 29.9347 59.302 32C59.302 34.0653 58.8755 36.1084 58.0492 38.0012C57.2229 39.8941 56.0146 41.5958 54.5 43"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+</vector>

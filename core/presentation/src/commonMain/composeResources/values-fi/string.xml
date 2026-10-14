@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="error_disk_full">Hups, tallennustila näyttää olevan täynnä!</string>
+    <string name="error_not_found">Pyydettyä kohdetta ei löytynyt</string>
+    <string name="error_unknown">Tapahtui tuntematon virhe</string>
+    <string name="error_bad_request">Virheellinen pyyntö</string>
+    <string name="error_request_timeout">Pyyntö aikakatkaistiin</string>
+    <string name="error_unauthorized">Virheelliset tunnukset</string>
+    <string name="error_forbidden">Sinulla ei ole oikeutta tähän</string>
+    <string name="error_conflict">Tapahtui ristiriita</string>
+    <string name="error_too_many_requests">Liian monta pyyntöä, yritä hetken päästä uudelleen</string>
+    <string name="error_no_internet">Yhteyttä ei saatu. Tarkista internetyhteytesi.</string>
+    <string name="error_payload_too_large">Liittämäsi tiedosto on liian suuri</string>
+    <string name="error_server">Hups, palvelimella tapahtui virhe</string>
+    <string name="error_service_unavailable">Palvelu ei ole käytettävissä, yritä myöhemmin uudelleen</string>
+    <string name="error_serialization">Tietojen käsittelyssä tapahtui virhe</string>
+    <string name="error_unable_to_send_message">Viestin lähettämisessä tapahtui virhe</string>
+</resources>

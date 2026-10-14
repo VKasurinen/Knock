@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="welcome_to_knock">Tervetuloa Knockiin!</string>
+    <string name="welcome_back">Tervetuloa takaisin!</string>
+    <string name="forgot_password">Unohtuiko salasana?</string>
+    <string name="set_new_password">Aseta uusi salasana</string>
+    <string name="new_password">Uusi salasana</string>
+    <string name="account_successfully_created">Knock-tili luotu!</string>
+    <string name="verification_email_sent_to_x">Lähetimme vahvistusviestin osoitteeseen %1$s</string>
+    <string name="resend_verification_email">Lähetä vahvistus uudelleen</string>
+    <string name="resent_verification_email">Vahvistusviesti lähetetty uudelleen</string>
+    <string name="verification_email_sent">Vahvistusviesti lähetetty</string>
+    <string name="verify_your_email">Vahvista sähköpostisi</string>
+    <string name="verification_email_sent_desc">Tiliäsi ei ole vielä vahvistettu. Lähetimme uuden vahvistusviestin osoitteeseen %1$s. Vahvista sähköpostisi ennen kirjautumista.</string>
+    <string name="verification_email_already_sent_desc">Tiliäsi ei ole vielä vahvistettu. Vahvistusviesti on jo lähetetty osoitteeseen %1$s. Tarkista saapuneet viestisi ja vahvista sähköpostisi ennen kirjautumista.</string>
+    <string name="back_to_login">Takaisin kirjautumiseen</string>
+    <string name="error_resend_verification_rate_limited">Odota hetki ennen kuin pyydät uuden vahvistusviestin</string>
+    <string name="verifying_account">Vahvistetaan tiliä…</string>
+    <string name="email_verified_successfully">Sähköposti vahvistettu!</string>
+    <string name="email_verified_failed">Sähköpostin vahvistus epäonnistui</string>
+    <string name="email_verified_successfully_desc">Sähköpostisi on vahvistettu. Voit nyt kirjautua sisään tunnuksillasi.</string>
+    <string name="email_verified_failed_desc">Sähköpostia ei voitu vahvistaa. Linkki saattaa olla virheellinen tai vanhentunut.</string>
+    <string name="close">Sulje</string>
+    <string name="submit">Lähetä</string>
+    <string name="username">Käyttäjänimi</string>
+    <string name="create_account">Luo tili</string>
+    <string name="password">Salasana</string>
+    <string name="email">Sähköposti</string>
+    <string name="register">Rekisteröidy</string>
+    <string name="username_placeholder">Knock</string>
+    <string name="email_placeholder">hello@knock.chat</string>
+    <string name="login">Kirjaudu sisään</string>
+    <string name="username_hint">Käytä 3–20 merkkiä</string>
+    <string name="password_hint">Vähintään 9 merkkiä, yksi numero ja iso kirjain</string>
+    <string name="error_account_exists">Tällä sähköpostilla tai käyttäjänimellä on jo tili</string>
+    <string name="error_invalid_password">Salasanassa pitää olla vähintään 9 merkkiä, yksi numero ja iso kirjain</string>
+    <string name="error_invalid_email">Tämä ei ole kelvollinen sähköposti</string>
+    <string name="error_invalid_username">Käyttäjänimessä pitää olla 3–20 merkkiä</string>
+    <string name="error_invalid_credentials">Sähköposti tai salasana on väärin</string>
+    <string name="error_email_not_verified">Kirjautuminen ei onnistu, koska sähköpostiasi ei ole vahvistettu</string>
+    <string name="error_same_password">Uusi salasana ei voi olla sama kuin vanha</string>
+    <string name="error_reset_password_token_invalid">Salasanan vaihtolinkki on virheellinen tai vanhentunut. Pyydä uusi viesti.</string>
+    <string name="forgot_password_email_sent_successfully">Lähetimme sinulle sähköpostin, jossa on linkki salasanan vaihtamiseen</string>
+    <string name="reset_password_successfully">Salasanasi on vaihdettu. Voit nyt kirjautua sisään uudella salasanalla.</string>
+</resources>

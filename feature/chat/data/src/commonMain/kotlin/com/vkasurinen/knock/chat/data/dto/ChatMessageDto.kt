@@ -1,0 +1,13 @@
+package com.vkasurinen.knock.chat.data.dto
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ChatMessageDto(
+    val id: String,
+    val chatId: String,
+    val content: String,
+    val createdAt: String,
+    val senderId: String,
+    val attachments: List<ChatMessageAttachmentDto> = emptyList()
+)

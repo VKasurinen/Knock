@@ -1,0 +1,80 @@
+package com.vkasurinen.knock.core.designsystem.components.avatar
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.vkasurinen.knock.core.designsystem.theme.KnockTheme
+import com.vkasurinen.knock.core.designsystem.theme.extended
+
+
+@Composable
+fun KnockStackedAvatars(
+    avatars: List<ChatParticipantUi>,
+    modifier: Modifier = Modifier,
+    size: AvatarSize = AvatarSize.SMALL,
+    maxVisible: Int = 2,
+    overlapPercentage: Float = 0.3f
+) {
+    val overlapOffset = -(size.dp * overlapPercentage)
+
+    val visibleAvatars = avatars.take(maxVisible)
+    val remainingCount = (avatars.size - maxVisible).coerceAtLeast(0)
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(overlapOffset),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        visibleAvatars.forEach { avatarUi ->
+            KnockAvatarPhoto(
+                displayText = avatarUi.initials,
+                size = size,
+                imageUrl = avatarUi.imageUrl
+            )
+        }
+
+        if(remainingCount > 0) {
+            KnockAvatarPhoto(
+                displayText = "$remainingCount+",
+                size = size,
+                textColor = MaterialTheme.colorScheme.extended.tertiary,
+                backgroundColor = MaterialTheme.colorScheme.extended.surfaceContainer
+            )
+        }
+    }
+}
+
+@Composable
+@Preview
+fun KnockStackedAvatarsPreview() {
+    KnockTheme {
+        KnockStackedAvatars(
+            avatars = listOf(
+                ChatParticipantUi(
+                    id = "1",
+                    username = "Philipp",
+                    initials = "PH",
+                ),
+                ChatParticipantUi(
+                    id = "2",
+                    username = "John",
+                    initials = "JO",
+                ),
+                ChatParticipantUi(
+                    id = "3",
+                    username = "Sabrina",
+                    initials = "SA",
+                ),
+                ChatParticipantUi(
+                    id = "4",
+                    username = "Cinderella",
+                    initials = "CI",
+                ),
+            )
+        )
+    }
+}

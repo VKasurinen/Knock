@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="hide_password">Piilota salasana</string>
+    <string name="show_password">Näytä salasana</string>
+    <string name="dismiss_dialog">Sulje ikkuna</string>
+</resources>
