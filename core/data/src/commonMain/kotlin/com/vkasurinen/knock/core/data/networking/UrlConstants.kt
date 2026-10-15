@@ -1,6 +1,8 @@
 package com.vkasurinen.knock.core.data.networking
 
+import com.vkasurinen.knock.core.data.BuildKonfig
+
 object UrlConstants {
-    const val BASE_URL_HTTP = "http://localhost:8080/api"
-    const val BASE_URL_WS = "ws://localhost:8080/ws"
+    val BASE_URL_HTTP = "${BuildKonfig.BASE_URL}/api"
+    val BASE_URL_WS = "${BuildKonfig.BASE_URL.replaceFirst("http", "ws")}/ws"
 }

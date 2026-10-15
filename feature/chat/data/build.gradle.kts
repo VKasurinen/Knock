@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.convention.kmp.library)
-    alias(libs.plugins.convention.buildkonfig)
 }
 
 kotlin {

@@ -23,25 +23,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Email links from the backend set as BASE_URL in local.properties. No port, so any
+                 port matches. Opens in the app without asking once the backend serves
+                 /.well-known/assetlinks.json for this app. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="https" />
-                <data android:host="knock.vkasurinen.com" />
-
-                <data android:pathPrefix="/api/auth/verify" />
-                <data android:pathPrefix="/api/auth/reset-password" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="knock" />
-                <data android:host="knock.vkasurinen.com" />
+                <data android:scheme="${backendScheme}" />
+                <data android:host="${backendHost}" />
 
                 <data android:pathPrefix="/api/auth/verify" />
                 <data android:pathPrefix="/api/auth/reset-password" />

@@ -22,3 +22,6 @@ iosApp/iosApp/GoogleService-Info.plist
 
 # Conveyor build output
 output
+
+# Demo data seeding (contains real account emails)
+demo/

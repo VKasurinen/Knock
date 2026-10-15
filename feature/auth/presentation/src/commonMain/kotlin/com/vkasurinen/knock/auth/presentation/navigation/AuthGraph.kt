@@ -12,6 +12,7 @@ import com.vkasurinen.knock.auth.presentation.register.RegisterRoot
 import com.vkasurinen.knock.auth.presentation.register_success.RegisterSuccessRoot
 import com.vkasurinen.knock.auth.presentation.reset_password.ResetPasswordRoot
 import com.vkasurinen.knock.auth.presentation.verification_pending.VerificationPendingRoot
+import com.vkasurinen.knock.feature.auth.presentation.BuildKonfig
 
 fun NavGraphBuilder.authGraph(
     navController: NavController,
@@ -85,13 +86,7 @@ fun NavGraphBuilder.authGraph(
         composable<AuthGraphRoutes.EmailVerification>(
             deepLinks = listOf(
                 navDeepLink {
-                    this.uriPattern = "http://localhost:8080/api/auth/verify?token={token}"
-                },
-                navDeepLink {
-                    this.uriPattern = "https://knock.vkasurinen.com/api/auth/verify?token={token}"
-                },
-                navDeepLink {
-                    this.uriPattern = "knock://knock.vkasurinen.com/api/auth/verify?token={token}"
+                    this.uriPattern = "${BuildKonfig.BASE_URL}/api/auth/verify?token={token}"
                 },
             )
         ) {
@@ -120,13 +115,7 @@ fun NavGraphBuilder.authGraph(
         composable<AuthGraphRoutes.ResetPassword>(
             deepLinks = listOf(
                 navDeepLink {
-                    this.uriPattern = "http://localhost:8080/api/auth/reset-password?token={token}"
-                },
-                navDeepLink {
-                    this.uriPattern = "https://knock.vkasurinen.com/api/auth/reset-password?token={token}"
-                },
-                navDeepLink {
-                    this.uriPattern = "knock://knock.vkasurinen.com/api/auth/reset-password?token={token}"
+                    this.uriPattern = "${BuildKonfig.BASE_URL}/api/auth/reset-password?token={token}"
                 },
             )
         ) {

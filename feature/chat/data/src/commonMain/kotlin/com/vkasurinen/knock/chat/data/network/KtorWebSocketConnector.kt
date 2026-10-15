@@ -11,7 +11,6 @@ import com.vkasurinen.knock.core.domain.logging.KnockLogger
 import com.vkasurinen.knock.core.domain.util.DataError
 import com.vkasurinen.knock.core.domain.util.EmptyResult
 import com.vkasurinen.knock.core.domain.util.Result
-import com.vkasurinen.knock.feature.chat.data.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.client.request.header
@@ -174,7 +173,6 @@ class KtorWebSocketConnector(
             urlString = "${UrlConstants.BASE_URL_WS}/chat"
         ) {
             header("Authorization", "Bearer $accessToken")
-            header("X-API-Key", BuildKonfig.API_KEY)
         }
 
         currentSession?.let { session ->

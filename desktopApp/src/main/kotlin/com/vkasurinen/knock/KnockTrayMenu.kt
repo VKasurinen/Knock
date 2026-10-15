@@ -43,7 +43,7 @@ fun ApplicationScope.KnockTrayMenu(
     )
 }
 
-// The Knock app icon (door on the brand background)
+// The Knock app icon (K speech bubble on the brand background)
 internal val TRAY_ICON_PNG = resourcePath("/tray/tray_icon.png")
 private val TRAY_ICON_ICO = resourcePath("/tray/tray_icon.ico")
 

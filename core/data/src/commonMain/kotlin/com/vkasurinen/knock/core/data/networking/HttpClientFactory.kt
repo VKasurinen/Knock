@@ -1,6 +1,5 @@
 package com.vkasurinen.knock.core.data.networking
 
-import com.vkasurinen.knock.core.data.BuildKonfig
 import com.vkasurinen.knock.core.data.dto.AuthInfoSerializable
 import com.vkasurinen.knock.core.data.dto.requests.RefreshRequest
 import com.vkasurinen.knock.core.data.mappers.toDomain
@@ -20,9 +19,9 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.request.header
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.firstOrNull
@@ -52,13 +51,14 @@ class HttpClientFactory(
                         knockLogger.debug(message)
                     }
                 }
-                level = LogLevel.ALL
+                // HEADERS, not ALL: request/response bodies contain passwords and tokens
+                level = LogLevel.HEADERS
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
             }
             install(WebSockets) {
                 pingIntervalMillis = 20_000L
             }
             defaultRequest {
-                header("x-api-key", BuildKonfig.API_KEY)
                 contentType(ContentType.Application.Json)
             }
 

@@ -9,11 +9,11 @@ import javax.swing.SwingUtilities
  */
 object DesktopDeepLinkHandler {
 
-    // The same links as the deep links of the nav graphs, including the local backend's links
+    // The same links as the deep links of the nav graphs. The email links of the backend set in
+    // local.properties match on the path, so its address doesn't need to be in the code.
     private val supportedUriPatterns = listOf(
         Regex("^knock://.*"),
-        Regex("^https?://knock\\.vkasurinen\\.com/.*"),
-        Regex("^http://localhost:8080/.*"),
+        Regex("^https?://[^/]+/api/auth/(verify|reset-password)\\?.*"),
     )
 
     private var isInitialized = false

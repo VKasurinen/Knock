@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.ApplicationExtension
+import com.vkasurinen.knock.convention.backendBaseUri
 import com.vkasurinen.knock.convention.configureKotlinAndroid
 import com.vkasurinen.knock.convention.libs
 import org.gradle.api.Plugin
@@ -21,6 +22,10 @@ class AndroidApplicationConventionPlugin: Plugin<Project> {
                     targetSdk = libs.findVersion("projectTargetSdkVersion").get().toString().toInt()
                     versionCode = libs.findVersion("projectVersionCode").get().toString().toInt()
                     versionName = libs.findVersion("projectVersionName").get().toString()
+
+                    // Email links of the backend set in local.properties
+                    manifestPlaceholders["backendScheme"] = backendBaseUri.scheme
+                    manifestPlaceholders["backendHost"] = backendBaseUri.host
                 }
                 packaging {
                     resources {
