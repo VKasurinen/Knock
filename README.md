@@ -140,9 +140,6 @@ The project follows Clean Architecture split into feature and core modules. Each
 own `domain`, `data` and `presentation` layers, and the dependency rule points inward:
 `presentation` and `data` depend on `domain`, never the other way around.
 
-<!-- Architecture diagram: modules and their dependencies -->
-![Architecture diagram](docs/images/architecture.png)
-
 **Presentation (MVVM with unidirectional data flow).** Every screen has a `ViewModel` that exposes a
 single immutable `State` as a `StateFlow`. The UI sends user interactions to the ViewModel as
 `Action`s through one `onAction` function, and one-time effects such as navigation or error messages
