@@ -192,8 +192,11 @@ Knock
 The backend is a private repository, so this section documents how it works. It is a Kotlin and
 Spring Boot application built as a modular monolith and deployed to a Linux server.
 
-<!-- Backend architecture diagram: clients, nginx, Spring Boot modules and external services -->
 ![Backend architecture](docs/images/backend-architecture.png)
+
+Clients talk to the backend through nginx over REST and a WebSocket connection. The modules don't
+call each other directly but exchange events through RabbitMQ, and files go straight from the
+client to Supabase Storage with a signed URL from the backend (dashed line).
 
 ### Tech stack
 
