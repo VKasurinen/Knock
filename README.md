@@ -6,8 +6,7 @@ One shared codebase runs natively on **Android**, **iOS** and **desktop (Windows
 The app supports one-to-one and group chats, image and voice messages, push notifications and an
 offline-first message cache, backed by a Spring Boot server described at the end of this document.
 
-<!-- Hero image: the app running side by side on phone, tablet and desktop -->
-![Knock on Android, iOS and desktop](docs/images/hero.png)
+![Knock on a tablet and a phone](docs/images/hero.png)
 
 ---
 
@@ -27,25 +26,42 @@ offline-first message cache, backed by a Spring Boot server described at the end
 
 ### Mobile
 
-| Login | Chat list | Chat |
+| Login | Register | Chat list |
 |:---:|:---:|:---:|
-| ![Login](docs/images/mobile-login.png) | ![Chat list](docs/images/mobile-chat-list.png) | ![Chat](docs/images/mobile-chat.png) |
+| ![Login](docs/images/mobile-login.png) | ![Register](docs/images/mobile-register.png) | ![Chat list](docs/images/mobile-chat-list.png) |
+
+| Chat | Group chat | Voice message |
+|:---:|:---:|:---:|
+| ![Chat](docs/images/mobile-chat.png) | ![Group chat](docs/images/mobile-group-chat.png) | ![Recording a voice message](docs/images/mobile-voice-message.jpg) |
 
 | Create chat | Manage chat | Profile |
 |:---:|:---:|:---:|
 | ![Create chat](docs/images/mobile-create-chat.png) | ![Manage chat](docs/images/mobile-manage-chat.png) | ![Profile](docs/images/mobile-profile.png) |
 
-### Desktop and tablet
+### Dark theme
 
-![Desktop list-detail layout](docs/images/desktop-chat.png)
+| Login | Register | Chat | Profile |
+|:---:|:---:|:---:|:---:|
+| ![Login, dark theme](docs/images/mobile-login-dark.png) | ![Register, dark theme](docs/images/mobile-register-dark.png) | ![Chat, dark theme](docs/images/mobile-chat-dark.png) | ![Profile, dark theme](docs/images/mobile-profile-dark.png) |
 
-![Tablet layout](docs/images/tablet-chat.png)
+### Tablet
 
-### Light and dark theme
+On larger screens the chat list and the open chat are shown side by side, and dialogs open as
+floating windows.
 
-| Light | Dark |
+![Tablet list-detail layout](docs/images/tablet-chat.png)
+
+| Dark theme | Group chat |
 |:---:|:---:|
-| ![Light theme](docs/images/theme-light.png) | ![Dark theme](docs/images/theme-dark.png) |
+| ![Tablet, dark theme](docs/images/tablet-chat-dark.png) | ![Tablet group chat](docs/images/tablet-group-chat.png) |
+
+| Create chat | Profile |
+|:---:|:---:|
+| ![Tablet create chat](docs/images/tablet-create-chat.png) | ![Tablet profile](docs/images/tablet-profile.png) |
+
+| Login | Register |
+|:---:|:---:|
+| ![Tablet login](docs/images/tablet-login.png) | ![Tablet register](docs/images/tablet-register.png) |
 
 ---
 
