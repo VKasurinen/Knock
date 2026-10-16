@@ -10,5 +10,7 @@ data class UserProfileState(
     val memberSince: Instant? = null,
     val commonGroups: List<ChatUi> = emptyList(),
     val isOpeningChat: Boolean = false,
+    /** The profile picture is open full screen */
+    val isPictureOpen: Boolean = false,
     val error: UiText? = null
 )

@@ -5,5 +5,7 @@ sealed interface UserProfileAction {
     data object OnSendMessageClick: UserProfileAction
     data object OnCreateGroupClick: UserProfileAction
     data class OnGroupClick(val chatId: String): UserProfileAction
+    data object OnPictureClick: UserProfileAction
+    data object OnDismissPicture: UserProfileAction
     data object OnDismiss: UserProfileAction
 }

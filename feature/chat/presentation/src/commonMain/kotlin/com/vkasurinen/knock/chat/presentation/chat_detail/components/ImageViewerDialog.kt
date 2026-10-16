@@ -59,15 +59,15 @@ private const val DOUBLE_TAP_ZOOM = 2.5f
 
 /**
  * Full screen viewer for a message's images. Swipe between images, pinch or double tap to zoom
- * and long press to save.
+ * and long press to save. Without [onSaveClick] there is no save menu, e.g. for profile pictures.
  */
 @Composable
 fun ImageViewerDialog(
     images: List<MessageAttachment>,
     initialIndex: Int,
-    snackbarHostState: SnackbarHostState,
-    onSaveClick: (MessageAttachment) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onSaveClick: ((MessageAttachment) -> Unit)? = null
 ) {
     val pagerState = rememberPagerState(
         initialPage = initialIndex.coerceIn(0, (images.size - 1).coerceAtLeast(0)),
@@ -91,7 +91,11 @@ fun ImageViewerDialog(
             ) { page ->
                 ZoomableImage(
                     image = images[page],
-                    onLongPress = { imageWithOpenMenu = images[page] }
+                    onLongPress = {
+                        if(onSaveClick != null) {
+                            imageWithOpenMenu = images[page]
+                        }
+                    }
                 )
             }
 
@@ -142,7 +146,7 @@ fun ImageViewerDialog(
                                 icon = vectorResource(Res.drawable.download_icon),
                                 contentColor = MaterialTheme.colorScheme.extended.textPrimary,
                                 onClick = {
-                                    imageWithOpenMenu?.let(onSaveClick)
+                                    imageWithOpenMenu?.let { onSaveClick?.invoke(it) }
                                     imageWithOpenMenu = null
                                 }
                             )

@@ -83,6 +83,12 @@ class UserProfileViewModel(
                     eventChannel.send(UserProfileEvent.OpenChat(action.chatId))
                 }
             }
+            UserProfileAction.OnPictureClick -> {
+                if(state.value.participant?.imageUrl != null) {
+                    _state.update { it.copy(isPictureOpen = true) }
+                }
+            }
+            UserProfileAction.OnDismissPicture -> _state.update { it.copy(isPictureOpen = false) }
             UserProfileAction.OnDismiss -> Unit
         }
     }

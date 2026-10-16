@@ -18,12 +18,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vkasurinen.knock.chat.domain.models.AttachmentType
+import com.vkasurinen.knock.chat.domain.models.MessageAttachment
+import com.vkasurinen.knock.chat.presentation.chat_detail.components.ImageViewerDialog
 import com.vkasurinen.knock.chat.presentation.components.GroupListItem
 import com.vkasurinen.knock.chat.presentation.profile.components.ProfileHeaderSection
 import com.vkasurinen.knock.core.designsystem.components.avatar.AvatarSize
@@ -132,7 +136,11 @@ fun UserProfileScreen(
                 KnockAvatarPhoto(
                     displayText = state.participant?.initials.orEmpty(),
                     imageUrl = state.participant?.imageUrl,
-                    size = AvatarSize.XLARGE
+                    size = AvatarSize.XLARGE,
+                    // Opens the picture full screen; nothing to open without one
+                    onClick = state.participant?.imageUrl?.let {
+                        { onAction(UserProfileAction.OnPictureClick) }
+                    }
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -200,6 +208,39 @@ fun UserProfileScreen(
             }
         }
     }
+
+    val pictureUrl = state.participant?.imageUrl
+    if(state.isPictureOpen && pictureUrl != null) {
+        ProfilePictureViewer(
+            imageUrl = pictureUrl,
+            username = state.participant.username,
+            onDismiss = { onAction(UserProfileAction.OnDismissPicture) }
+        )
+    }
+}
+
+@Composable
+private fun ProfilePictureViewer(
+    imageUrl: String,
+    username: String,
+    onDismiss: () -> Unit
+) {
+    val picture = remember(imageUrl) {
+        MessageAttachment(
+            id = null,
+            type = AttachmentType.IMAGE,
+            url = imageUrl,
+            localPath = null,
+            fileName = username,
+            mimeType = "image/*",
+            sizeBytes = 0
+        )
+    }
+    ImageViewerDialog(
+        images = listOf(picture),
+        initialIndex = 0,
+        onDismiss = onDismiss
+    )
 }
 
 @Composable
