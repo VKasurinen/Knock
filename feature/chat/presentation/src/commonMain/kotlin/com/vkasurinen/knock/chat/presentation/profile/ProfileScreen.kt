@@ -1,5 +1,6 @@
 package com.vkasurinen.knock.chat.presentation.profile
 
+import com.vkasurinen.knock.chat.presentation.chat_detail.components.ImageViewerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Arrangement
@@ -200,8 +201,9 @@ fun ProfileScreen(
                             displayText = state.userInitials,
                             size = AvatarSize.LARGE,
                             imageModel = state.displayedPicture,
-                            onClick = {
-                                onAction(ProfileAction.OnUploadPictureClick)
+                            // Opens the picture full screen; uploading is done with the button
+                            onClick = state.displayedPicture?.let {
+                                { onAction(ProfileAction.OnPictureClick) }
                             }
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -348,6 +350,15 @@ fun ProfileScreen(
             // Covers the profile content only, without stretching the dialog
             DragAndDropOverlay(modifier = Modifier.matchParentSize())
         }
+    }
+
+    val displayedPicture = state.displayedPicture
+    if(state.isPictureOpen && displayedPicture != null) {
+        ImageViewerDialog(
+            model = displayedPicture,
+            contentDescription = state.username,
+            onDismiss = { onAction(ProfileAction.OnDismissPicture) }
+        )
     }
 
     if(state.isDiscardChangesDialogVisible) {

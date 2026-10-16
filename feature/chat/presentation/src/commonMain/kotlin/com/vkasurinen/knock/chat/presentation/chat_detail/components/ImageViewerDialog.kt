@@ -90,7 +90,8 @@ fun ImageViewerDialog(
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 ZoomableImage(
-                    image = images[page],
+                    model = images[page].imageModel,
+                    contentDescription = images[page].fileName,
                     onLongPress = {
                         if(onSaveClick != null) {
                             imageWithOpenMenu = images[page]
@@ -119,21 +120,10 @@ fun ImageViewerDialog(
                     )
                 }
 
-                IconButton(
+                ViewerCloseButton(
                     onClick = onDismiss,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color.Black.copy(alpha = 0.5f),
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                ) {
-                    Icon(
-                        imageVector = vectorResource(DesignSystemRes.drawable.close_icon),
-                        contentDescription = stringResource(Res.string.close)
-                    )
-                }
+                    modifier = Modifier.align(Alignment.TopEnd)
+                )
 
                 // Anchors the context menu in the middle of the screen
                 Box(modifier = Modifier.align(Alignment.Center)) {
@@ -163,9 +153,68 @@ fun ImageViewerDialog(
     }
 }
 
+/**
+ * Full screen viewer for a single picture, e.g. a profile picture. Pinch or double tap to zoom.
+ * [model] is anything Coil can load: a URL or the bytes of a picture that isn't uploaded yet.
+ */
+@Composable
+fun ImageViewerDialog(
+    model: Any,
+    contentDescription: String?,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            ZoomableImage(
+                model = model,
+                contentDescription = contentDescription,
+                onLongPress = {}
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding()
+            ) {
+                ViewerCloseButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ViewerCloseButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = Color.Black.copy(alpha = 0.5f),
+            contentColor = Color.White
+        ),
+        modifier = modifier.padding(8.dp)
+    ) {
+        Icon(
+            imageVector = vectorResource(DesignSystemRes.drawable.close_icon),
+            contentDescription = stringResource(Res.string.close)
+        )
+    }
+}
+
 @Composable
 private fun ZoomableImage(
-    image: MessageAttachment,
+    model: Any?,
+    contentDescription: String?,
     onLongPress: () -> Unit
 ) {
     var scale by remember { mutableFloatStateOf(1f) }
@@ -179,8 +228,8 @@ private fun ZoomableImage(
     }
 
     AsyncImage(
-        model = image.imageModel,
-        contentDescription = image.fileName,
+        model = model,
+        contentDescription = contentDescription,
         contentScale = ContentScale.Fit,
         modifier = Modifier
             .fillMaxSize()

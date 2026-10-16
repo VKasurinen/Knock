@@ -25,8 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.vkasurinen.knock.chat.domain.models.AttachmentType
-import com.vkasurinen.knock.chat.domain.models.MessageAttachment
 import com.vkasurinen.knock.chat.presentation.chat_detail.components.ImageViewerDialog
 import com.vkasurinen.knock.chat.presentation.components.GroupListItem
 import com.vkasurinen.knock.chat.presentation.profile.components.ProfileHeaderSection
@@ -211,36 +209,12 @@ fun UserProfileScreen(
 
     val pictureUrl = state.participant?.imageUrl
     if(state.isPictureOpen && pictureUrl != null) {
-        ProfilePictureViewer(
-            imageUrl = pictureUrl,
-            username = state.participant.username,
+        ImageViewerDialog(
+            model = pictureUrl,
+            contentDescription = state.participant.username,
             onDismiss = { onAction(UserProfileAction.OnDismissPicture) }
         )
     }
-}
-
-@Composable
-private fun ProfilePictureViewer(
-    imageUrl: String,
-    username: String,
-    onDismiss: () -> Unit
-) {
-    val picture = remember(imageUrl) {
-        MessageAttachment(
-            id = null,
-            type = AttachmentType.IMAGE,
-            url = imageUrl,
-            localPath = null,
-            fileName = username,
-            mimeType = "image/*",
-            sizeBytes = 0
-        )
-    }
-    ImageViewerDialog(
-        images = listOf(picture),
-        initialIndex = 0,
-        onDismiss = onDismiss
-    )
 }
 
 @Composable

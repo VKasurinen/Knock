@@ -82,6 +82,12 @@ class ProfileViewModel(
             is ProfileAction.OnSaveClick -> save()
             is ProfileAction.OnDismiss -> requestClose()
             is ProfileAction.OnDiscardChangesClick -> close()
+            is ProfileAction.OnPictureClick -> {
+                if(state.value.displayedPicture != null) {
+                    _state.update { it.copy(isPictureOpen = true) }
+                }
+            }
+            is ProfileAction.OnDismissPicture -> _state.update { it.copy(isPictureOpen = false) }
             is ProfileAction.OnKeepEditingClick -> {
                 _state.update { it.copy(isDiscardChangesDialogVisible = false) }
             }

@@ -30,7 +30,9 @@ data class ProfileState(
     /** Applied immediately when changed */
     val appLanguage: AppLanguage = AppLanguage.SYSTEM,
     val isSaving: Boolean = false,
-    val isDiscardChangesDialogVisible: Boolean = false
+    val isDiscardChangesDialogVisible: Boolean = false,
+    /** The profile picture is open full screen */
+    val isPictureOpen: Boolean = false
 ) {
     /** The avatar preview: a newly picked picture, nothing if removal is pending, or the current one */
     val displayedPicture: Any?
