@@ -1,5 +1,11 @@
 package com.vkasurinen.knock.chat.presentation.chat_list
 
+import com.vkasurinen.knock.core.designsystem.components.switches.KnockSegmentedButton
+import knock.feature.chat.presentation.generated.resources.filter_all
+import knock.feature.chat.presentation.generated.resources.filter_direct
+import knock.feature.chat.presentation.generated.resources.filter_groups
+import knock.feature.chat.presentation.generated.resources.no_direct_chats
+import knock.feature.chat.presentation.generated.resources.no_group_chats
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -185,6 +191,28 @@ fun ChatListScreen(
                     )
                 }
                 else -> {
+                    KnockSegmentedButton(
+                        options = ChatFilter.entries,
+                        selected = state.filter,
+                        onSelect = { onAction(ChatListAction.OnFilterChange(it)) },
+                        label = { it.label() },
+                        modifier = Modifier
+                            .padding(start = 12.dp, end = 12.dp, top = 12.dp)
+                    )
+                    if(state.visibleChats.isEmpty()) {
+                        EmptyListSection(
+                            title = stringResource(
+                                if(state.filter == ChatFilter.GROUPS) Res.string.no_group_chats
+                                else Res.string.no_direct_chats
+                            ),
+                            description = null,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        )
+                        return@Column
+                    }
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -198,7 +226,7 @@ fun ChatListScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(
-                            items = state.chats,
+                            items = state.visibleChats,
                             key = { it.id }
                         ) { chatUi ->
                             ChatListItemUi(
@@ -247,4 +275,15 @@ private fun Preview() {
             snackbarHostState = remember { SnackbarHostState() }
         )
     }
+}
+
+@Composable
+private fun ChatFilter.label(): String {
+    return stringResource(
+        when(this) {
+            ChatFilter.ALL -> Res.string.filter_all
+            ChatFilter.DIRECT -> Res.string.filter_direct
+            ChatFilter.GROUPS -> Res.string.filter_groups
+        }
+    )
 }

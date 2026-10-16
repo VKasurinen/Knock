@@ -40,6 +40,10 @@ val KnockSage600 = Color(0xFF5E6B3A)
 val KnockSage500 = Color(0xFF8A9A5B)
 val KnockSage300 = Color(0xFFA9B97A)
 
+// Moss: read receipts, clearly apart from the bubble text in both themes
+val KnockMoss300 = Color(0xFFB4DC8C)
+val KnockMoss700 = Color(0xFF2F6B1F)
+
 // Brick
 val KnockBrick700 = Color(0xFF8E3226)
 val KnockBrick600 = Color(0xFFA63D2F)

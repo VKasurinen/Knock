@@ -21,7 +21,8 @@ fun OtherUserMessage(
     isGroupChat: Boolean,
     playbackState: PlaybackState,
     attachmentCallbacks: AttachmentCallbacks,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSenderClick: ((userId: String) -> Unit)? = null
 ) {
     Row(
         modifier = modifier
@@ -33,7 +34,8 @@ fun OtherUserMessage(
             KnockAvatarPhoto(
                 displayText = message.sender.initials,
                 imageUrl = message.sender.imageUrl,
-                size = AvatarSize.XSMALL
+                size = AvatarSize.XSMALL,
+                onClick = onSenderClick?.let { { it(message.sender.id) } }
             )
         }
         KnockChatBubble(

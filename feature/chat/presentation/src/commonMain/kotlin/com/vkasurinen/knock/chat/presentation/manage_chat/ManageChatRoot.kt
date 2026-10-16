@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import knock.feature.chat.presentation.generated.resources.Res
 import knock.feature.chat.presentation.generated.resources.chat_members
 import knock.feature.chat.presentation.generated.resources.save
+import knock.feature.chat.presentation.generated.resources.to_be_added
 import com.vkasurinen.knock.chat.presentation.components.manage_chat.ManageChatAction
 import com.vkasurinen.knock.chat.presentation.components.manage_chat.ManageChatScreen
 import com.vkasurinen.knock.core.designsystem.components.dialogs.KnockAdaptiveDialogSheetLayout
@@ -19,6 +20,7 @@ fun ManageChatRoot(
     chatId: String?,
     onDismiss: () -> Unit,
     onMembersAdded: () -> Unit,
+    onMemberClick: (userId: String) -> Unit,
     viewModel: ManageChatViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -39,10 +41,12 @@ fun ManageChatRoot(
         ManageChatScreen(
             headerText = stringResource(Res.string.chat_members),
             primaryButtonText = stringResource(Res.string.save),
+            selectedHeaderText = stringResource(Res.string.to_be_added),
             state = state,
             onAction = { action ->
                 when(action) {
                     ManageChatAction.OnDismissDialog -> onDismiss()
+                    is ManageChatAction.OnMemberClick -> onMemberClick(action.userId)
                     else -> Unit
                 }
                 viewModel.onAction(action)

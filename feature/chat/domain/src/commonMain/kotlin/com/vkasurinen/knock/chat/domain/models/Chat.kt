@@ -4,10 +4,13 @@ import kotlin.time.Instant
 
 data class Chat(
     val id: String,
+    val type: ChatType,
+    val name: String? = null,
     val participants: List<ChatParticipant>,
     val lastActivityAt: Instant,
     val lastMessage: ChatMessage?,
     val lastMessageSenderUsername: String? = null,
     val creatorId: String? = null,
-    val isLocalUserRemoved: Boolean = false
+    val isLocalUserRemoved: Boolean = false,
+    val readStates: List<ChatReadState> = emptyList()
 )

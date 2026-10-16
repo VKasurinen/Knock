@@ -12,4 +12,8 @@ data class ChatListState(
     val showLogoutConfirmation: Boolean = false,
     val selectedChatId: String? = null,
     val isLoading: Boolean = false,
-)
+    val filter: ChatFilter = ChatFilter.ALL,
+) {
+    val visibleChats: List<ChatUi>
+        get() = chats.filter { filter.matches(it) }
+}

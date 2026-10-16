@@ -50,7 +50,7 @@ fun ChatListItemUi(
     unreadCount: Int? = null
 ) {
     val extended = MaterialTheme.colorScheme.extended
-    val isGroupChat = chat.otherParticipants.size > 1
+    val isGroupChat = chat.isGroup
     val shape = RoundedCornerShape(16.dp)
     Row(
         modifier = modifier
@@ -86,7 +86,7 @@ fun ChatListItemUi(
                         chat.otherParticipants.firstOrNull()?.username
                             ?: stringResource(Res.string.only_you)
                     } else {
-                        stringResource(Res.string.group_chat)
+                        chat.name ?: stringResource(Res.string.group_chat)
                     },
                     style = MaterialTheme.typography.titleSmall,
                     color = extended.textPrimary,
@@ -190,6 +190,8 @@ fun ChatListItemUiPreview() {
                     username = "Philipp",
                     initials = "PH",
                 ),
+                isGroup = true,
+                name = "Kahvikerho",
                 otherParticipants = listOf(
                     ChatParticipantUi(
                         id = "2",

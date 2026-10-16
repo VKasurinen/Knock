@@ -2,6 +2,9 @@ package com.vkasurinen.knock.chat.presentation.mappers
 
 import com.vkasurinen.knock.chat.domain.models.Chat
 import com.vkasurinen.knock.chat.domain.models.ChatParticipant
+import com.vkasurinen.knock.chat.domain.models.ChatType
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -11,6 +14,8 @@ class ChatMappersTest {
 
     private val chat = Chat(
         id = "chat-1",
+        type = ChatType.GROUP,
+        name = "Kahvikerho",
         participants = listOf(
             ChatParticipant(userId = "admin", username = "Admin", profilePictureUrl = null),
             ChatParticipant(userId = "member", username = "Member", profilePictureUrl = null)
@@ -40,5 +45,21 @@ class ChatMappersTest {
         val chatUi = chat.copy(isLocalUserRemoved = true).toUi(localParticipantId = "member")
 
         assertTrue(chatUi.isLocalUserRemoved)
+    }
+
+    @Test
+    fun groupType_isMappedEvenWithOneOtherMember() {
+        val chatUi = chat.toUi(localParticipantId = "member")
+
+        assertTrue(chatUi.isGroup)
+        assertEquals("Kahvikerho", chatUi.name)
+    }
+
+    @Test
+    fun directChat_isNotGroup() {
+        val chatUi = chat.copy(type = ChatType.DIRECT, name = null).toUi(localParticipantId = "member")
+
+        assertFalse(chatUi.isGroup)
+        assertNull(chatUi.name)
     }
 }

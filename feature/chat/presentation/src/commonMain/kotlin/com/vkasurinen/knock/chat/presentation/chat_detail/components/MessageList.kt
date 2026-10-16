@@ -46,6 +46,7 @@ fun MessageList(
     attachmentCallbacks: AttachmentCallbacks,
     modifier: Modifier = Modifier,
     isGroupChat: Boolean = false,
+    onSenderClick: ((userId: String) -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 16.dp)
 ) {
     if(messages.isEmpty()) {
@@ -81,6 +82,7 @@ fun MessageList(
                     playbackState = playbackState,
                     attachmentCallbacks = attachmentCallbacks,
                     isGroupChat = isGroupChat,
+                    onSenderClick = onSenderClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .animateItem()

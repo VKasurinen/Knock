@@ -116,7 +116,7 @@ val LightExtendedColors = ExtendedColors(
     onBubbleOut = KnockWood50,
     bubbleIn = KnockWood50,
     onBubbleIn = KnockWood850,
-    readReceipt = KnockTuscan300,
+    readReceipt = KnockMoss300,
 
     accentBrand = KnockBuff500,
     onAccentBrand = KnockWood850,
@@ -173,7 +173,7 @@ val DarkExtendedColors = ExtendedColors(
     onBubbleOut = KnockEspresso1000,
     bubbleIn = KnockEspresso700,
     onBubbleIn = KnockWood100,
-    readReceipt = KnockWood800,
+    readReceipt = KnockMoss700,
 
     accentBrand = KnockBuff500,
     onAccentBrand = KnockEspresso1000,

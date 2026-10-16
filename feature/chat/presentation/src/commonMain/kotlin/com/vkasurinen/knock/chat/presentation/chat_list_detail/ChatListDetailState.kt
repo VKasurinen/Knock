@@ -7,7 +7,9 @@ data class ChatListDetailState(
 
 sealed interface DialogState {
     data object Hidden: DialogState
-    data object CreateChat: DialogState
+    /** [preselectedUserIds] are already selected, e.g. when creating a group from a profile */
+    data class CreateChat(val preselectedUserIds: List<String> = emptyList()): DialogState
     data object Profile: DialogState
     data class ManageChat(val chatId: String): DialogState
+    data class UserProfile(val userId: String): DialogState
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +24,9 @@ import knock.feature.chat.presentation.generated.resources.Res
 import knock.feature.chat.presentation.generated.resources.cancel
 import knock.feature.chat.presentation.generated.resources.create_chat
 import knock.feature.chat.presentation.generated.resources.new_chat
+import knock.feature.chat.presentation.generated.resources.create_group
+import knock.feature.chat.presentation.generated.resources.new_group
+import knock.feature.chat.presentation.generated.resources.selected_participants
 import com.vkasurinen.knock.chat.presentation.components.ChatParticipantSearchTextSection
 import com.vkasurinen.knock.chat.presentation.components.ChatParticipantsSelectionSection
 import com.vkasurinen.knock.chat.presentation.components.ManageChatButtonSection
@@ -45,10 +49,15 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun CreateChatRoot(
     onDismiss: () -> Unit,
+    preselectedUserIds: List<String> = emptyList(),
     onChatCreated: (Chat) -> Unit,
     viewModel: CreateChatViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(preselectedUserIds) {
+        viewModel.onAction(ManageChatAction.ChatParticipants.OnPreselectUsers(preselectedUserIds))
+    }
 
     ObserveAsEvents(viewModel.events) { event ->
         when(event) {
@@ -60,8 +69,13 @@ fun CreateChatRoot(
         onDismiss = onDismiss
     ) {
         ManageChatScreen(
-            headerText = stringResource(Res.string.new_chat),
-            primaryButtonText = stringResource(Res.string.create_chat),
+            headerText = stringResource(
+                if(state.showGroupName) Res.string.new_group else Res.string.new_chat
+            ),
+            primaryButtonText = stringResource(
+                if(state.showGroupName) Res.string.create_group else Res.string.create_chat
+            ),
+            selectedHeaderText = stringResource(Res.string.selected_participants),
             state = state,
             onAction = { action ->
                 when(action) {

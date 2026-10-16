@@ -18,6 +18,11 @@
             </intent-filter>
         </service>
 
+        <!-- Forgets a chat's notification messages when the notification is swiped away -->
+        <receiver
+            android:name="com.vkasurinen.knock.chat.data.notification.ChatNotificationDismissedReceiver"
+            android:exported="false" />
+
         <!-- Background playback of voice messages -->
         <service
             android:name="com.vkasurinen.knock.chat.data.audio.PlaybackService"

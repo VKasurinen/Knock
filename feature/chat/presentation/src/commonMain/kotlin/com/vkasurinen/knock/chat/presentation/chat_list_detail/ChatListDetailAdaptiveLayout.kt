@@ -23,6 +23,7 @@ import com.vkasurinen.knock.chat.presentation.chat_list.ChatListRoot
 import com.vkasurinen.knock.chat.presentation.create_chat.CreateChatRoot
 import com.vkasurinen.knock.chat.presentation.manage_chat.ManageChatRoot
 import com.vkasurinen.knock.chat.presentation.profile.ProfileRoot
+import com.vkasurinen.knock.chat.presentation.user_profile.UserProfileRoot
 import com.vkasurinen.knock.core.designsystem.theme.extended
 import com.vkasurinen.knock.core.presentation.util.DialogSheetScopedViewModel
 import kotlinx.coroutines.launch
@@ -98,6 +99,9 @@ fun ChatListDetailAdaptiveLayout(
                     onChatMembersClick = {
                         chatListDetailViewModel.onAction(ChatListDetailAction.OnManageChatClick)
                     },
+                    onUserProfileClick = { userId ->
+                        chatListDetailViewModel.onAction(ChatListDetailAction.OnUserProfileClick(userId))
+                    },
                     onBack = {
                         scope.launch {
                             if(scaffoldNavigator.canNavigateBack()) {
@@ -114,6 +118,9 @@ fun ChatListDetailAdaptiveLayout(
         visible = sharedState.dialogState is DialogState.CreateChat
     ) {
         CreateChatRoot(
+            preselectedUserIds = (sharedState.dialogState as? DialogState.CreateChat)
+                ?.preselectedUserIds
+                .orEmpty(),
             onChatCreated = { chat ->
                 chatListDetailViewModel.onAction(ChatListDetailAction.OnDismissCurrentDialog)
                 chatListDetailViewModel.onAction(ChatListDetailAction.OnSelectChat(chat.id))
@@ -134,6 +141,30 @@ fun ChatListDetailAdaptiveLayout(
             chatId = sharedState.selectedChatId,
             onMembersAdded = {
                 chatListDetailViewModel.onAction(ChatListDetailAction.OnDismissCurrentDialog)
+            },
+            onMemberClick = { userId ->
+                chatListDetailViewModel.onAction(ChatListDetailAction.OnUserProfileClick(userId))
+            },
+            onDismiss = {
+                chatListDetailViewModel.onAction(ChatListDetailAction.OnDismissCurrentDialog)
+            }
+        )
+    }
+
+    DialogSheetScopedViewModel(
+        visible = sharedState.dialogState is DialogState.UserProfile
+    ) {
+        UserProfileRoot(
+            userId = (sharedState.dialogState as? DialogState.UserProfile)?.userId,
+            onOpenChat = { chatId ->
+                chatListDetailViewModel.onAction(ChatListDetailAction.OnDismissCurrentDialog)
+                chatListDetailViewModel.onAction(ChatListDetailAction.OnSelectChat(chatId))
+                scope.launch {
+                    scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                }
+            },
+            onCreateGroupWith = { userId ->
+                chatListDetailViewModel.onAction(ChatListDetailAction.OnCreateGroupWith(userId))
             },
             onDismiss = {
                 chatListDetailViewModel.onAction(ChatListDetailAction.OnDismissCurrentDialog)

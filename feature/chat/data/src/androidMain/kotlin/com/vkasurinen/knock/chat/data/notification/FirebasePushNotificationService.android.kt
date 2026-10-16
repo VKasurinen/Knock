@@ -11,6 +11,7 @@ import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.coroutineContext
 
 actual class FirebasePushNotificationService(
+    private val chatNotifier: ChatNotifier,
     private val logger: KnockLogger
 ) : PushNotificationService {
 
@@ -24,5 +25,9 @@ actual class FirebasePushNotificationService(
             logger.error("Failed to get FCM token", e)
             emit(null)
         }
+    }
+
+    override fun clearChatNotifications(chatId: String) {
+        chatNotifier.clear(chatId)
     }
 }

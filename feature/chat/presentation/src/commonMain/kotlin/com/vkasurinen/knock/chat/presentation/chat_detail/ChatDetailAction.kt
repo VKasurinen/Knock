@@ -8,6 +8,9 @@ sealed interface ChatDetailAction {
     data object OnSendMessageClick: ChatDetailAction
     data object OnScrollToTop: ChatDetailAction
     data class OnSelectChat(val chatId: String?): ChatDetailAction
+    /** The app came back to the foreground with this chat open */
+    data object OnScreenResumed: ChatDetailAction
+    data object OnScreenPaused: ChatDetailAction
     data class OnDeleteMessageClick(val message: MessageUi.LocalUserMessage): ChatDetailAction
     data class OnMessageLongClick(val message: MessageUi.LocalUserMessage): ChatDetailAction
     data object OnDismissMessageMenu: ChatDetailAction
@@ -15,6 +18,7 @@ sealed interface ChatDetailAction {
     data object OnBackClick: ChatDetailAction
     data object OnChatOptionsClick: ChatDetailAction
     data object OnChatMembersClick: ChatDetailAction
+    data class OnUserProfileClick(val userId: String): ChatDetailAction
     data object OnLeaveChatClick: ChatDetailAction
     data object OnConfirmLeaveChatClick: ChatDetailAction
     data object OnDismissLeaveChatConfirmation: ChatDetailAction

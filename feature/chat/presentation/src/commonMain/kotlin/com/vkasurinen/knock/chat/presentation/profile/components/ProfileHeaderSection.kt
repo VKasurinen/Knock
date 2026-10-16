@@ -26,7 +26,8 @@ import org.jetbrains.compose.resources.stringResource
 fun ProfileHeaderSection(
     username: String,
     onCloseClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    subtitle: String? = stringResource(Res.string.profile_settings)
 ) {
     Row(
         modifier = modifier
@@ -43,11 +44,13 @@ fun ProfileHeaderSection(
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.extended.textPrimary
             )
-            Text(
-                text = stringResource(Res.string.profile_settings),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.extended.textTertiary
-            )
+            if(subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.extended.textTertiary
+                )
+            }
         }
         IconButton(
             onClick = onCloseClick

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.FilledIconButton
@@ -153,6 +154,7 @@ private fun MessageTextField(
                 connectionState.toUiText().asString()
             },
             keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Send
             ),
             onKeyboardAction = onSendClick,

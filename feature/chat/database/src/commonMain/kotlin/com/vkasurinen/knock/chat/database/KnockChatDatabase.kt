@@ -7,10 +7,12 @@ import com.vkasurinen.knock.chat.database.dao.ChatDao
 import com.vkasurinen.knock.chat.database.dao.ChatMessageDao
 import com.vkasurinen.knock.chat.database.dao.ChatParticipantDao
 import com.vkasurinen.knock.chat.database.dao.ChatParticipantsCrossRefDao
+import com.vkasurinen.knock.chat.database.dao.ChatReadStateDao
 import com.vkasurinen.knock.chat.database.entities.ChatEntity
 import com.vkasurinen.knock.chat.database.entities.ChatMessageEntity
 import com.vkasurinen.knock.chat.database.entities.ChatParticipantCrossRef
 import com.vkasurinen.knock.chat.database.entities.ChatParticipantEntity
+import com.vkasurinen.knock.chat.database.entities.ChatReadStateEntity
 import com.vkasurinen.knock.chat.database.view.LastMessageView
 
 @Database(
@@ -19,11 +21,12 @@ import com.vkasurinen.knock.chat.database.view.LastMessageView
         ChatParticipantEntity::class,
         ChatMessageEntity::class,
         ChatParticipantCrossRef::class,
+        ChatReadStateEntity::class,
     ],
     views = [
         LastMessageView::class
     ],
-    version = 3,
+    version = 5,
 )
 @ConstructedBy(KnockChatDatabaseConstructor::class)
 abstract class KnockChatDatabase: RoomDatabase() {
@@ -31,6 +34,7 @@ abstract class KnockChatDatabase: RoomDatabase() {
     abstract val chatParticipantDao: ChatParticipantDao
     abstract val chatMessageDao: ChatMessageDao
     abstract val chatParticipantsCrossRefDao: ChatParticipantsCrossRefDao
+    abstract val chatReadStateDao: ChatReadStateDao
 
     companion object {
         const val DB_NAME = "knock.db"

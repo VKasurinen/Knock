@@ -50,7 +50,7 @@ fun ChatItemHeaderRow(
                     chat.otherParticipants.firstOrNull()?.username
                         ?: stringResource(Res.string.only_you)
                 } else {
-                    stringResource(Res.string.group_chat)
+                    chat.name ?: stringResource(Res.string.group_chat)
                 },
                 style = MaterialTheme.typography.titleXSmall,
                 color = MaterialTheme.colorScheme.extended.textPrimary,

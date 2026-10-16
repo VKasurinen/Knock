@@ -40,7 +40,17 @@ class ChatListDetailViewModel(
             }
             ChatListDetailAction.OnCreateChatClick -> {
                 _state.update { it.copy(
-                    dialogState = DialogState.CreateChat
+                    dialogState = DialogState.CreateChat()
+                ) }
+            }
+            is ChatListDetailAction.OnCreateGroupWith -> {
+                _state.update { it.copy(
+                    dialogState = DialogState.CreateChat(preselectedUserIds = listOf(action.userId))
+                ) }
+            }
+            is ChatListDetailAction.OnUserProfileClick -> {
+                _state.update { it.copy(
+                    dialogState = DialogState.UserProfile(action.userId)
                 ) }
             }
             ChatListDetailAction.OnDismissCurrentDialog -> {

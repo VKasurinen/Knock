@@ -1,6 +1,9 @@
 package com.vkasurinen.knock.chat.data.mappers
 
 import com.vkasurinen.knock.chat.data.dto.ChatDto
+import com.vkasurinen.knock.chat.data.dto.ChatReadStateDto
+import com.vkasurinen.knock.chat.database.entities.ChatReadStateEntity
+import com.vkasurinen.knock.chat.domain.models.ChatReadState
 import com.vkasurinen.knock.chat.database.entities.ChatEntity
 import com.vkasurinen.knock.chat.database.entities.ChatInfoEntity
 import com.vkasurinen.knock.chat.database.entities.ChatWithParticipants
@@ -10,6 +13,7 @@ import com.vkasurinen.knock.chat.domain.models.ChatInfo
 import com.vkasurinen.knock.chat.domain.models.ChatMessage
 import com.vkasurinen.knock.chat.domain.models.ChatMessageDeliveryStatus
 import com.vkasurinen.knock.chat.domain.models.ChatParticipant
+import com.vkasurinen.knock.chat.domain.models.ChatType
 import kotlin.time.Instant
 
 
@@ -22,11 +26,39 @@ fun ChatDto.toDomain(): Chat {
     }
     return Chat(
         id = id,
+        type = type.toChatType(),
+        name = name,
         participants = participants.map { it.toDomain() },
         lastActivityAt = Instant.parse(lastActivityAt),
         lastMessage = lastMessage?.toDomain(),
         lastMessageSenderUsername = lastMessageSenderUsername,
-        creatorId = creator?.userId
+        creatorId = creator?.userId,
+        readStates = readStates.map { it.toDomain() }
+    )
+}
+
+fun ChatReadStateDto.toDomain(): ChatReadState {
+    return ChatReadState(
+        userId = userId,
+        lastDeliveredAt = lastDeliveredAt?.let(Instant::parse),
+        lastReadAt = lastReadAt?.let(Instant::parse)
+    )
+}
+
+fun ChatReadStateEntity.toDomain(): ChatReadState {
+    return ChatReadState(
+        userId = userId,
+        lastDeliveredAt = lastDeliveredAt?.let(Instant::fromEpochMilliseconds),
+        lastReadAt = lastReadAt?.let(Instant::fromEpochMilliseconds)
+    )
+}
+
+fun ChatReadState.toEntity(chatId: String): ChatReadStateEntity {
+    return ChatReadStateEntity(
+        chatId = chatId,
+        userId = userId,
+        lastDeliveredAt = lastDeliveredAt?.toEpochMilliseconds(),
+        lastReadAt = lastReadAt?.toEpochMilliseconds()
     )
 }
 
@@ -39,6 +71,8 @@ fun ChatEntity.toDomain(
     }
     return Chat(
         id = chatId,
+        type = type.toChatType(),
+        name = name,
         participants = participants,
         lastActivityAt = Instant.fromEpochMilliseconds(lastActivityAt),
         lastMessage = lastMessage,
@@ -51,6 +85,8 @@ fun ChatEntity.toDomain(
 fun ChatWithParticipants.toDomain(): Chat {
     return Chat(
         id = chat.chatId,
+        type = chat.type.toChatType(),
+        name = chat.name,
         participants = participants.map { it.toDomain() },
         lastActivityAt = Instant.fromEpochMilliseconds(chat.lastActivityAt),
         lastMessage = lastMessage?.toDomain(),
@@ -63,10 +99,17 @@ fun ChatWithParticipants.toDomain(): Chat {
 fun Chat.toEntity(): ChatEntity {
     return ChatEntity(
         chatId = id,
+        type = type.name,
+        name = name,
         lastActivityAt = lastActivityAt.toEpochMilliseconds(),
         creatorId = creatorId,
         isLocalUserRemoved = isLocalUserRemoved
     )
+}
+
+/** Unknown values fall back to [ChatType.GROUP], which allows the most actions. */
+fun String.toChatType(): ChatType {
+    return ChatType.entries.firstOrNull { it.name == this } ?: ChatType.GROUP
 }
 
 fun DataMessageWithSender.toDomain(): DomainMessageWithSender {
@@ -81,7 +124,7 @@ fun ChatInfoEntity.toDomain(): ChatInfo {
     return ChatInfo(
         chat = chat.toDomain(
             participants = this.participants.map { it.toDomain() }
-        ),
+        ).copy(readStates = readStates.map { it.toDomain() }),
         messages = messagesWithSenders.map { it.toDomain() }
     )
 }

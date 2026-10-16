@@ -21,6 +21,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import knock.feature.chat.presentation.generated.resources.Res
 import knock.feature.chat.presentation.generated.resources.cancel
 import knock.feature.chat.presentation.generated.resources.create_chat
+import knock.feature.chat.presentation.generated.resources.group_name
+import knock.feature.chat.presentation.generated.resources.group_name_desc
+import knock.feature.chat.presentation.generated.resources.group_name_placeholder
+import com.vkasurinen.knock.core.designsystem.components.textfields.KnockTextField
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import knock.feature.chat.presentation.generated.resources.remove
 import knock.feature.chat.presentation.generated.resources.remove_x_from_chat_desc
 import knock.feature.chat.presentation.generated.resources.remove_x_from_chat_title
@@ -42,6 +49,7 @@ import org.jetbrains.compose.resources.stringResource
 fun ManageChatScreen(
     headerText: String,
     primaryButtonText: String,
+    selectedHeaderText: String,
     state: ManageChatState,
     onAction: (ManageChatAction) -> Unit,
 ) {
@@ -76,12 +84,22 @@ fun ManageChatScreen(
                 KnockHorizontalDivider()
             }
         }
+        AnimatedVisibility(visible = state.showGroupName) {
+            KnockTextField(
+                state = state.groupNameTextState,
+                title = stringResource(Res.string.group_name),
+                placeholder = stringResource(Res.string.group_name_placeholder),
+                supportingText = stringResource(Res.string.group_name_desc),
+                singleLine = true,
+                capitalization = KeyboardCapitalization.Sentences,
+                onFocusChanged = { isTextFieldFocused = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, top = 16.dp)
+            )
+        }
         ChatParticipantSearchTextSection(
             queryState = state.queryTextState,
-            onAddClick = {
-                onAction(ManageChatAction.OnAddClick)
-            },
-            isSearchEnabled = state.canAddParticipant,
             isLoading = state.isSearching,
             modifier = Modifier
                 .fillMaxWidth(),
@@ -94,10 +112,19 @@ fun ManageChatScreen(
         ChatParticipantsSelectionSection(
             existingParticipants = state.existingChatParticipants,
             selectedParticipants = state.selectedChatParticipants,
+            selectedHeaderText = selectedHeaderText,
+            onToggleParticipant = { participant ->
+                onAction(ManageChatAction.OnToggleParticipant(participant))
+            },
             modifier = Modifier
                 .fillMaxWidth(),
-            searchResult = state.currentSearchResult,
+            searchResult = state.unselectedSearchResult,
+            isSearchResultExistingMember = state.isSearchResultExistingMember,
             adminUserId = state.adminUserId,
+            localUserId = state.localUserId,
+            onMemberClick = { userId ->
+                onAction(ManageChatAction.OnMemberClick(userId))
+            },
             onRemoveParticipantClick = if(state.canRemoveParticipants) {
                 { participant -> onAction(ManageChatAction.OnRemoveParticipantClick(participant)) }
             } else null
@@ -110,7 +137,7 @@ fun ManageChatScreen(
                     onClick = {
                         onAction(ManageChatAction.OnPrimaryActionClick)
                     },
-                    enabled = state.selectedChatParticipants.isNotEmpty(),
+                    enabled = state.canSubmit,
                     isLoading = state.isSubmitting
                 )
             },
@@ -153,6 +180,7 @@ private fun Preview() {
     KnockTheme {
         ManageChatScreen(
             headerText = "Create chat",
+            selectedHeaderText = "Selected",
             state = ManageChatState(),
             onAction = {},
             primaryButtonText = "Create chat"

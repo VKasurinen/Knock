@@ -36,5 +36,10 @@ data class ChatInfoEntity(
         entityColumn = "chatId",
         entity = ChatMessageEntity::class
     )
-    val messagesWithSenders: List<MessageWithSender>
+    val messagesWithSenders: List<MessageWithSender>,
+    @Relation(
+        parentColumn = "chatId",
+        entityColumn = "chatId"
+    )
+    val readStates: List<ChatReadStateEntity> = emptyList()
 )

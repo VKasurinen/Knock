@@ -1,5 +1,13 @@
 package com.vkasurinen.knock.chat.presentation.components
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
+import knock.feature.chat.presentation.generated.resources.already_member
+import knock.feature.chat.presentation.generated.resources.check_icon
+import knock.feature.chat.presentation.generated.resources.search_result
+import knock.feature.chat.presentation.generated.resources.selected
+import knock.feature.chat.presentation.generated.resources.tap_to_select
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,9 +60,14 @@ import org.jetbrains.compose.resources.stringResource
 fun ColumnScope.ChatParticipantsSelectionSection(
     existingParticipants: List<ChatParticipantUi>,
     selectedParticipants: List<ChatParticipantUi>,
+    selectedHeaderText: String,
+    onToggleParticipant: (ChatParticipantUi) -> Unit,
     modifier: Modifier = Modifier,
     searchResult: ChatParticipantUi? = null,
+    isSearchResultExistingMember: Boolean = false,
     adminUserId: String? = null,
+    localUserId: String? = null,
+    onMemberClick: ((userId: String) -> Unit)? = null,
     onRemoveParticipantClick: ((ChatParticipantUi) -> Unit)? = null
 ) {
     val deviceConfiguration = currentDeviceConfiguration()
@@ -89,25 +102,43 @@ fun ColumnScope.ChatParticipantsSelectionSection(
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
+            // A result that isn't selected yet; tapping it selects it
             searchResult?.let {
-                item {
+                item(key = "search_result_label") {
+                    SectionLabel(text = stringResource(Res.string.search_result))
+                }
+                item(key = "search_result_${searchResult.id}") {
                     ChatParticipantListItem(
                         participantUi = searchResult,
+                        hint = stringResource(
+                            if(isSearchResultExistingMember) Res.string.already_member
+                            else Res.string.tap_to_select
+                        ),
+                        onClick = if(isSearchResultExistingMember) null else {
+                            { onToggleParticipant(searchResult) }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .animateItem()
                     )
                 }
             }
 
-            if(selectedParticipants.isNotEmpty() && searchResult == null) {
+            if(selectedParticipants.isNotEmpty()) {
+                item(key = "selected_label") {
+                    SectionLabel(text = "$selectedHeaderText · ${selectedParticipants.size}")
+                }
                 items(
                     items = selectedParticipants,
-                    key = { it.id }
+                    key = { "selected_${it.id}" }
                 ) { participant ->
                     ChatParticipantListItem(
                         participantUi = participant,
+                        isSelected = true,
+                        onClick = { onToggleParticipant(participant) },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .animateItem()
                     )
                 }
             }
@@ -119,12 +150,7 @@ fun ColumnScope.ChatParticipantsSelectionSection(
                     }
                 }
                 item {
-                    Text(
-                        text = stringResource(Res.string.members),
-                        style = MaterialTheme.typography.labelXSmall,
-                        color = MaterialTheme.colorScheme.extended.textTertiary,
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
-                    )
+                    SectionLabel(text = stringResource(Res.string.members))
                 }
             }
 
@@ -136,6 +162,9 @@ fun ColumnScope.ChatParticipantsSelectionSection(
                 ChatParticipantListItem(
                     participantUi = participant,
                     isAdmin = isAdmin,
+                    onClick = if(onMemberClick != null && participant.id != localUserId) {
+                        { onMemberClick(participant.id) }
+                    } else null,
                     onRemoveClick = if(onRemoveParticipantClick != null && !isAdmin) {
                         { onRemoveParticipantClick(participant) }
                     } else null,
@@ -145,6 +174,16 @@ fun ColumnScope.ChatParticipantsSelectionSection(
             }
         }
     }
+}
+
+@Composable
+private fun SectionLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelXSmall,
+        color = MaterialTheme.colorScheme.extended.textTertiary,
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+    )
 }
 
 @Composable
@@ -178,18 +217,41 @@ private fun NoMembersSection(
     }
 }
 
+/**
+ * A participant row ("Member Row" in Figma). [isSelected] shows the Selected state: a brand
+ * outline and a check mark.
+ */
 @Composable
 fun ChatParticipantListItem(
     participantUi: ChatParticipantUi,
     modifier: Modifier = Modifier,
     isAdmin: Boolean = false,
+    isSelected: Boolean = false,
+    hint: String? = null,
+    onClick: (() -> Unit)? = null,
     onRemoveClick: (() -> Unit)? = null
 ) {
+    val extended = MaterialTheme.colorScheme.extended
+    val shape = RoundedCornerShape(12.dp)
     Row(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
-            .padding(horizontal = 4.dp, vertical = 8.dp),
+            .clip(shape)
+            .then(
+                if(isSelected) {
+                    Modifier
+                        .background(extended.surfaceContainer)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, shape)
+                } else Modifier
+            )
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
+            .padding(
+                start = if(isSelected) 8.dp else 4.dp,
+                end = if(isSelected) 12.dp else 4.dp,
+                top = 8.dp,
+                bottom = 8.dp
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -224,6 +286,25 @@ fun ChatParticipantListItem(
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 )
             }
+        }
+        if(isSelected) {
+            Text(
+                text = stringResource(Res.string.selected),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Icon(
+                imageVector = vectorResource(Res.drawable.check_icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        } else if(hint != null) {
+            Text(
+                text = hint,
+                style = MaterialTheme.typography.bodySmall,
+                color = extended.textTertiary
+            )
         }
         if(onRemoveClick != null) {
             IconButton(

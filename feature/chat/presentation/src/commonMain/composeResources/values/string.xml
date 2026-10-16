@@ -113,4 +113,56 @@
     <string name="discard_changes_desc">You have unsaved changes. If you leave now, they will be lost.</string>
     <string name="discard">Discard</string>
     <string name="keep_editing">Keep editing</string>
+
+    <!-- User profile -->
+    <string name="show_profile">Show profile</string>
+    <string name="user_profile">Profile</string>
+    <string name="member_since">Member since %1$s %2$d</string>
+    <string-array name="month_names">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+    <string name="send_message">Send message</string>
+    <string name="create_group">Create group</string>
+    <string name="common_groups">Groups in common</string>
+    <string name="common_groups_count">Groups in common · %1$d</string>
+    <string name="no_common_groups">No groups in common</string>
+    <string name="no_common_groups_desc">Create a group with %1$s and it shows up here.</string>
+    <plurals name="member_count">
+        <item quantity="one">%1$d member</item>
+        <item quantity="other">%1$d members</item>
+    </plurals>
+
+    <!-- Chat list filter -->
+    <string name="filter_all">All</string>
+    <string name="filter_direct">Direct</string>
+    <string name="filter_groups">Groups</string>
+    <string name="no_direct_chats">No direct messages yet</string>
+    <string name="no_group_chats">No groups yet</string>
+
+    <!-- Selecting participants and groups -->
+    <string name="new_group">New group</string>
+    <string name="group_name">Group name</string>
+    <string name="group_name_placeholder">e.g. Coffee club</string>
+    <string name="group_name_desc">Optional. Without a name, the members' names are shown.</string>
+    <string name="search_result">Search result</string>
+    <string name="tap_to_select">Tap to select</string>
+    <string name="already_member">Already a member</string>
+    <string name="selected">Selected</string>
+    <string name="to_be_added">To be added</string>
+    <string name="selected_participants">Selected</string>
+
+    <!-- Message status -->
+    <string name="delivered">Delivered</string>
+    <string name="read">Read</string>
 </resources>

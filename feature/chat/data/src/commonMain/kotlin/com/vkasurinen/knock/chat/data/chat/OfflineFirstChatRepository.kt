@@ -12,6 +12,7 @@ import com.vkasurinen.knock.chat.domain.chat.ChatService
 import com.vkasurinen.knock.chat.domain.models.Chat
 import com.vkasurinen.knock.chat.domain.models.ChatInfo
 import com.vkasurinen.knock.chat.domain.models.ChatParticipant
+import com.vkasurinen.knock.chat.domain.models.ChatReadState
 import com.vkasurinen.knock.core.domain.util.DataError
 import com.vkasurinen.knock.core.domain.util.EmptyResult
 import com.vkasurinen.knock.core.domain.util.Result
@@ -61,7 +62,8 @@ class OfflineFirstChatRepository(
                     participants = chatInfo
                         .participants
                         .onlyActive(chatInfo.chat.chatId),
-                    messagesWithSenders = chatInfo.messagesWithSenders
+                    messagesWithSenders = chatInfo.messagesWithSenders,
+                    readStates = chatInfo.readStates
                 )
             }
             .map { it.toDomain() }
@@ -92,34 +94,62 @@ class OfflineFirstChatRepository(
                     crossRefDao = db.chatParticipantsCrossRefDao,
                     messageDao = db.chatMessageDao
                 )
+                db.chatReadStateDao.mergeReadStates(
+                    states = chats.flatMap { chat -> chat.readStates.map { it.toEntity(chat.id) } },
+                    existingChatIds = chats.map { it.id }.toSet()
+                )
+                // The chat list now holds every chat's latest messages, so they reached this device
+                chatService.markAllDelivered()
             }
     }
 
     override suspend fun fetchChatById(chatId: String): EmptyResult<DataError.Remote> {
         return chatService
             .getChatById(chatId)
-            .onSuccess { chat ->
-                db.chatDao.upsertChatWithParticipantsAndCrossRefs(
-                    chat = chat.toEntity(),
-                    participants = chat.participants.map { it.toEntity() },
-                    participantDao = db.chatParticipantDao,
-                    crossRefDao = db.chatParticipantsCrossRefDao
-                )
-            }
+            .onSuccess { it.saveLocally() }
             .asEmptyResult()
     }
 
-    override suspend fun createChat(otherUserIds: List<String>): Result<Chat, DataError.Remote> {
-        return chatService
-            .createChat(otherUserIds)
-            .onSuccess { chat ->
-                db.chatDao.upsertChatWithParticipantsAndCrossRefs(
-                    chat = chat.toEntity(),
-                    participants = chat.participants.map { it.toEntity() },
-                    participantDao = db.chatParticipantDao,
-                    crossRefDao = db.chatParticipantsCrossRefDao
-                )
+    override fun getChatParticipant(userId: String): Flow<ChatParticipant?> {
+        return db.chatParticipantDao.observeParticipantById(userId)
+            .map { it?.toDomain() }
+    }
+
+    override fun getCommonGroups(localUserId: String, otherUserId: String): Flow<List<Chat>> {
+        return db.chatDao.getCommonGroups(localUserId, otherUserId)
+            .map { groups ->
+                groups.map { group ->
+                    group.copy(
+                        participants = group.participants.onlyActive(group.chat.chatId)
+                    ).toDomain()
+                }
             }
+    }
+
+    override suspend fun createChat(
+        otherUserIds: List<String>,
+        name: String?
+    ): Result<Chat, DataError.Remote> {
+        return chatService
+            .createChat(otherUserIds, name)
+            .onSuccess { it.saveLocally() }
+    }
+
+    override suspend fun getOrCreateDirectChat(userId: String): Result<Chat, DataError.Remote> {
+        db.chatDao.getDirectChatWith(userId)?.let { localChat ->
+            return Result.Success(localChat.toDomain())
+        }
+        // The server returns the existing direct chat if there is one, so this never duplicates it
+        return createChat(otherUserIds = listOf(userId))
+    }
+
+    override suspend fun renameChat(
+        chatId: String,
+        name: String?
+    ): Result<Chat, DataError.Remote> {
+        return chatService
+            .renameChat(chatId, name)
+            .onSuccess { it.saveLocally() }
     }
 
     override suspend fun leaveChat(chatId: String): EmptyResult<DataError.Remote> {
@@ -154,14 +184,39 @@ class OfflineFirstChatRepository(
     ): Result<Chat, DataError.Remote> {
         return chatService
             .addParticipantsToChat(chatId, userIds)
-            .onSuccess { chat ->
-                db.chatDao.upsertChatWithParticipantsAndCrossRefs(
-                    chat = chat.toEntity(),
-                    participants = chat.participants.map { it.toEntity() },
-                    participantDao = db.chatParticipantDao,
-                    crossRefDao = db.chatParticipantsCrossRefDao
-                )
-            }
+            .onSuccess { it.saveLocally() }
+    }
+
+    override suspend fun markChatDelivered(chatId: String): EmptyResult<DataError.Remote> {
+        return chatService.markDelivered(chatId)
+    }
+
+    override suspend fun markChatRead(chatId: String): EmptyResult<DataError.Remote> {
+        return chatService.markRead(chatId)
+    }
+
+    override suspend fun markAllChatsDelivered(): EmptyResult<DataError.Remote> {
+        return chatService.markAllDelivered()
+    }
+
+    override suspend fun updateReadState(chatId: String, readState: ChatReadState) {
+        db.chatReadStateDao.mergeReadStates(
+            states = listOf(readState.toEntity(chatId)),
+            existingChatIds = setOf(chatId)
+        )
+    }
+
+    private suspend fun Chat.saveLocally() {
+        db.chatDao.upsertChatWithParticipantsAndCrossRefs(
+            chat = toEntity(),
+            participants = participants.map { it.toEntity() },
+            participantDao = db.chatParticipantDao,
+            crossRefDao = db.chatParticipantsCrossRefDao
+        )
+        db.chatReadStateDao.mergeReadStates(
+            states = readStates.map { it.toEntity(id) },
+            existingChatIds = setOf(id)
+        )
     }
 
     override suspend fun deleteAllChats() {

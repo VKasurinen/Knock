@@ -1,12 +1,14 @@
 package com.vkasurinen.knock.chat.data.participant
 
 import com.vkasurinen.knock.chat.data.dto.ChatParticipantDto
+import com.vkasurinen.knock.chat.data.dto.ChatParticipantProfileDto
 import com.vkasurinen.knock.chat.data.dto.request.ConfirmProfilePictureRequest
 import com.vkasurinen.knock.chat.data.dto.response.ProfilePictureUploadUrlsResponse
 import com.vkasurinen.knock.chat.data.mappers.toDomain
 import com.vkasurinen.knock.chat.domain.participant.ChatParticipantService
 import com.vkasurinen.knock.chat.domain.models.ChatParticipant
 import com.vkasurinen.knock.chat.domain.models.ProfilePictureUploadUrls
+import com.vkasurinen.knock.chat.domain.models.UserProfile
 import com.vkasurinen.knock.core.data.networking.constructRoute
 import com.vkasurinen.knock.core.data.networking.delete
 import com.vkasurinen.knock.core.data.networking.get
@@ -36,6 +38,12 @@ class KtorChatParticipantService(
             queryParams = mapOf(
                 "query" to query
             )
+        ).map { it.toDomain() }
+    }
+
+    override suspend fun getUserProfile(userId: String): Result<UserProfile, DataError.Remote> {
+        return httpClient.get<ChatParticipantProfileDto>(
+            route = "/participants/$userId"
         ).map { it.toDomain() }
     }
 

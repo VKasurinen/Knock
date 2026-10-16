@@ -1,5 +1,8 @@
 package com.vkasurinen.knock.chat.data.chat
 
+import kotlinx.coroutines.launch
+import kotlin.time.Instant
+import com.vkasurinen.knock.chat.domain.models.ChatReadState
 import com.vkasurinen.knock.chat.data.dto.websocket.IncomingWebSocketDto
 import com.vkasurinen.knock.chat.data.dto.websocket.IncomingWebSocketType
 import com.vkasurinen.knock.chat.data.dto.websocket.WebSocketMessageDto
@@ -85,6 +88,12 @@ class WebSocketChatConnectionClient(
             IncomingWebSocketType.CHAT_PARTICIPANTS_CHANGED.name -> {
                 json.decodeFromString<IncomingWebSocketDto.ChatParticipantsChangedDto>(message.payload)
             }
+            IncomingWebSocketType.CHAT_UPDATED.name -> {
+                json.decodeFromString<IncomingWebSocketDto.ChatUpdatedDto>(message.payload)
+            }
+            IncomingWebSocketType.READ_STATE_CHANGED.name -> {
+                json.decodeFromString<IncomingWebSocketDto.ReadStateChangedDto>(message.payload)
+            }
             IncomingWebSocketType.USER_TYPING.name -> {
                 json.decodeFromString<IncomingWebSocketDto.UserTypingDto>(message.payload)
             }
@@ -104,7 +113,22 @@ class WebSocketChatConnectionClient(
     private suspend fun handleIncomingMessage(message: IncomingWebSocketDto): ChatEvent? {
         return when(message) {
             is IncomingWebSocketDto.ChatParticipantsChangedDto -> {
-                refreshChat(message)
+                chatRepository.fetchChatById(message.chatId)
+                null
+            }
+            is IncomingWebSocketDto.ChatUpdatedDto -> {
+                chatRepository.fetchChatById(message.chatId)
+                null
+            }
+            is IncomingWebSocketDto.ReadStateChangedDto -> {
+                chatRepository.updateReadState(
+                    chatId = message.chatId,
+                    readState = ChatReadState(
+                        userId = message.userId,
+                        lastDeliveredAt = message.lastDeliveredAt?.let(Instant::parse),
+                        lastReadAt = message.lastReadAt?.let(Instant::parse)
+                    )
+                )
                 null
             }
             is IncomingWebSocketDto.MessageDeletedDto -> {
@@ -160,10 +184,6 @@ class WebSocketChatConnectionClient(
         return ChatEvent.ChatDeleted(chatId = message.chatId)
     }
 
-    private suspend fun refreshChat(message: IncomingWebSocketDto.ChatParticipantsChangedDto) {
-        chatRepository.fetchChatById(message.chatId)
-    }
-
     private suspend fun deleteMessage(message: IncomingWebSocketDto.MessageDeletedDto) {
         database.chatMessageDao.deleteMessageById(message.messageId)
     }
@@ -182,6 +202,14 @@ class WebSocketChatConnectionClient(
             ?.let { existing -> decodeAttachments(existing.attachments).map { it.localPath } }
             .orEmpty()
         database.chatMessageDao.upsertMessage(message.toEntity(localPaths))
+
+        // Tell the sender the message reached this device
+        val localUserId = sessionStorage.observeAuthInfo().firstOrNull()?.user?.id
+        if(message.senderId != localUserId) {
+            applicationScope.launch {
+                chatRepository.markChatDelivered(message.chatId)
+            }
+        }
     }
 
     private suspend fun updateProfilePicture(message: IncomingWebSocketDto.ProfilePictureUpdated) {

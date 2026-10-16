@@ -4,5 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateChatRequest(
-    val otherUserIds: List<String>
+    val otherUserIds: List<String>,
+    val name: String? = null
 )

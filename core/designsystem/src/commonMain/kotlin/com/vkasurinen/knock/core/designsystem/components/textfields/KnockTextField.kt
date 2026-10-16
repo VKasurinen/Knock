@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,7 @@ fun KnockTextField(
     singleLine: Boolean = false,
     enabled: Boolean = true,
     keyboardType: KeyboardType = KeyboardType.Text,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     onFocusChanged: (Boolean) -> Unit = {},
 ) {
     KnockTextFieldLayout(
@@ -69,7 +71,8 @@ fun KnockTextField(
                 }
             ),
             keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType
+                keyboardType = keyboardType,
+                capitalization = capitalization
             ),
             cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
             interactionSource = interactionSource,

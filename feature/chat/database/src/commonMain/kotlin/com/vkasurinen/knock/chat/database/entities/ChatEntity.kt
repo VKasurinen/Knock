@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey
 data class ChatEntity(
     @PrimaryKey
     val chatId: String,
+    val type: String,
+    val name: String? = null,
     val lastActivityAt: Long,
     val creatorId: String? = null,
     val isLocalUserRemoved: Boolean = false

@@ -6,6 +6,7 @@ import com.vkasurinen.knock.chat.presentation.chat_list_detail.ChatListDetailVie
 import com.vkasurinen.knock.chat.presentation.create_chat.CreateChatViewModel
 import com.vkasurinen.knock.chat.presentation.manage_chat.ManageChatViewModel
 import com.vkasurinen.knock.chat.presentation.profile.ProfileViewModel
+import com.vkasurinen.knock.chat.presentation.user_profile.UserProfileViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -16,4 +17,5 @@ val chatPresentationModule = module {
     viewModelOf(::ChatDetailViewModel)
     viewModelOf(::ManageChatViewModel)
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::UserProfileViewModel)
 }

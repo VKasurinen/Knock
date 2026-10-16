@@ -2,24 +2,24 @@
 
 package com.vkasurinen.knock.chat.presentation.manage_chat
 
-import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import knock.feature.chat.presentation.generated.resources.Res
-import knock.feature.chat.presentation.generated.resources.error_participant_not_found
 import com.vkasurinen.knock.chat.domain.chat.ChatRepository
+import com.vkasurinen.knock.chat.domain.models.ChatType
 import com.vkasurinen.knock.chat.domain.participant.ChatParticipantService
 import com.vkasurinen.knock.chat.presentation.components.manage_chat.ManageChatAction
 import com.vkasurinen.knock.chat.presentation.components.manage_chat.ManageChatState
+import com.vkasurinen.knock.chat.presentation.components.manage_chat.searchParticipant
+import com.vkasurinen.knock.chat.presentation.components.manage_chat.toggleParticipant
 import com.vkasurinen.knock.chat.presentation.mappers.toUi
 import com.vkasurinen.knock.core.domain.auth.SessionStorage
-import com.vkasurinen.knock.core.domain.util.DataError
+import com.vkasurinen.knock.core.domain.util.Result
 import com.vkasurinen.knock.core.domain.util.onFailure
 import com.vkasurinen.knock.core.domain.util.onSuccess
-import com.vkasurinen.knock.core.presentation.util.UiText
 import com.vkasurinen.knock.core.presentation.util.toUiText
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -27,9 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -53,34 +51,48 @@ class ManageChatViewModel(
     val events = eventChannel.receiveAsFlow()
 
     private var hasLoadedInitialData = false
+    private var groupNameLoadedForChatId: String? = null
 
     private val _state = MutableStateFlow(ManageChatState())
-    private val adminUserIdFlow = _chatId
+
+    private val chatFlow = _chatId
         .flatMapLatest { chatId ->
             if(chatId != null) {
-                chatRepository.getChatInfoById(chatId).map { it.chat.creatorId }
+                chatRepository.getChatInfoById(chatId).map { it.chat }
             } else flowOf(null)
         }
-        .distinctUntilChanged()
+        .onEach { chat ->
+            // Fill the name field once per chat, so later updates don't overwrite what's typed
+            if(chat != null && chat.id != groupNameLoadedForChatId) {
+                groupNameLoadedForChatId = chat.id
+                _state.value.groupNameTextState.setTextAndPlaceCursorAtEnd(chat.name.orEmpty())
+                _state.update { it.copy(originalGroupName = chat.name) }
+            }
+        }
 
-    val state = _chatId
+    private val participantsFlow = _chatId
         .flatMapLatest { chatId ->
             if(chatId != null) {
                 chatRepository.getActiveParticipantsByChatId(chatId)
             } else emptyFlow()
         }
-        .combine(_state) { participants, currentState ->
-            currentState.copy(
-                existingChatParticipants = participants.map { it.toUi() }
-            )
-        }
-        .combine(adminUserIdFlow) { currentState, adminUserId ->
-            val localUserId = sessionStorage.observeAuthInfo().first()?.user?.id
-            currentState.copy(
-                adminUserId = adminUserId,
-                canRemoveParticipants = adminUserId != null && adminUserId == localUserId
-            )
-        }
+
+    val state = combine(
+        _state,
+        participantsFlow,
+        chatFlow,
+        sessionStorage.observeAuthInfo().map { it?.user?.id }
+    ) { currentState, participants, chat, localUserId ->
+        val adminUserId = chat?.creatorId
+        val isLocalUserAdmin = adminUserId != null && adminUserId == localUserId
+        currentState.copy(
+            existingChatParticipants = participants.map { it.toUi() },
+            localUserId = localUserId,
+            adminUserId = adminUserId,
+            canRemoveParticipants = isLocalUserAdmin,
+            showGroupName = chat?.type == ChatType.GROUP && isLocalUserAdmin
+        )
+    }
         .onStart {
             if (!hasLoadedInitialData) {
                 searchFlow.launchIn(viewModelScope)
@@ -94,15 +106,20 @@ class ManageChatViewModel(
         )
 
     private val searchFlow = snapshotFlow { _state.value.queryTextState.text.toString() }
-        .debounce(1.seconds)
+        .debounce(SEARCH_DEBOUNCE)
         .onEach { query ->
-            performSearch(query)
+            _state.searchParticipant(query, chatParticipantService)
         }
 
     fun onAction(action: ManageChatAction) {
         when(action) {
-            ManageChatAction.OnAddClick -> addParticipant()
-            ManageChatAction.OnPrimaryActionClick -> addParticipantsToChat()
+            is ManageChatAction.OnToggleParticipant -> {
+                // Existing members are filtered out against the combined state
+                if(state.value.existingChatParticipants.none { it.id == action.participant.id }) {
+                    _state.toggleParticipant(action.participant)
+                }
+            }
+            ManageChatAction.OnPrimaryActionClick -> save()
             is ManageChatAction.OnRemoveParticipantClick -> {
                 _state.update { it.copy(participantPendingRemoval = action.participant) }
             }
@@ -114,27 +131,6 @@ class ManageChatViewModel(
                 _chatId.update { action.chatId }
             }
             else -> Unit
-        }
-    }
-
-    private fun addParticipant() {
-        state.value.currentSearchResult?.let { participantFromSearch ->
-            val isAlreadySelected = state.value.selectedChatParticipants.any {
-                it.id == participantFromSearch.id
-            }
-            val isAlreadyInChat = state.value.existingChatParticipants.any {
-                it.id == participantFromSearch.id
-            }
-            val updatedParticipants = if(isAlreadyInChat || isAlreadySelected) {
-                state.value.selectedChatParticipants
-            } else state.value.selectedChatParticipants + participantFromSearch
-
-            state.value.queryTextState.clearText()
-            _state.update { it.copy(
-                selectedChatParticipants = updatedParticipants,
-                canAddParticipant = false,
-                currentSearchResult = null
-            ) }
         }
     }
 
@@ -169,80 +165,60 @@ class ManageChatViewModel(
         }
     }
 
-    private fun addParticipantsToChat() {
-        if(state.value.selectedChatParticipants.isEmpty()) {
+    /** Adds the selected participants and renames the group, whichever of them changed */
+    private fun save() {
+        val chatId = _chatId.value ?: return
+        val currentState = state.value
+        if(!currentState.canSubmit) {
             return
         }
 
-        val chatId = _chatId.value ?: return
-
-        val selectedParticipants = state.value.selectedChatParticipants
-        val selectedUserIds = selectedParticipants.map { it.id }
+        val selectedUserIds = currentState.selectedChatParticipants.map { it.id }
 
         viewModelScope.launch {
-            chatRepository
-                .addParticipantsToChat(
-                    chatId = chatId,
-                    userIds = selectedUserIds
-                )
-                .onSuccess {
-                    eventChannel.send(ManageChatEvent.OnMembersAdded)
+            _state.update { it.copy(
+                isSubmitting = true,
+                submitError = null
+            ) }
+
+            if(currentState.isGroupNameChanged) {
+                val renameResult = chatRepository
+                    .renameChat(chatId, currentState.normalizedGroupName)
+                    .onFailure { error ->
+                        _state.update { it.copy(
+                            isSubmitting = false,
+                            submitError = error.toUiText()
+                        ) }
+                    }
+                if(renameResult is Result.Failure) {
+                    return@launch
                 }
-                .onFailure { error ->
-                    _state.update { it.copy(
-                        isSubmitting = false,
-                        submitError = error.toUiText()
-                    ) }
-                }
+            }
+
+            if(selectedUserIds.isNotEmpty()) {
+                chatRepository
+                    .addParticipantsToChat(
+                        chatId = chatId,
+                        userIds = selectedUserIds
+                    )
+                    .onSuccess {
+                        _state.update { it.copy(isSubmitting = false) }
+                        eventChannel.send(ManageChatEvent.OnMembersAdded)
+                    }
+                    .onFailure { error ->
+                        _state.update { it.copy(
+                            isSubmitting = false,
+                            submitError = error.toUiText()
+                        ) }
+                    }
+            } else {
+                _state.update { it.copy(isSubmitting = false) }
+                eventChannel.send(ManageChatEvent.OnMembersAdded)
+            }
         }
     }
 
-    private fun performSearch(query: String) {
-        if (query.isBlank()) {
-            _state.update {
-                it.copy(
-                    currentSearchResult = null,
-                    canAddParticipant = false,
-                    searchError = null
-                )
-            }
-            return
-        }
-
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isSearching = true,
-                    canAddParticipant = false
-                )
-            }
-
-            chatParticipantService
-                .searchParticipant(query)
-                .onSuccess { participant ->
-                    _state.update {
-                        it.copy(
-                            currentSearchResult = participant.toUi(),
-                            isSearching = false,
-                            canAddParticipant = true,
-                            searchError = null
-                        )
-                    }
-                }
-                .onFailure { error ->
-                    val errorMessage = when (error) {
-                        DataError.Remote.NOT_FOUND -> UiText.Resource(Res.string.error_participant_not_found)
-                        else -> error.toUiText()
-                    }
-                    _state.update {
-                        it.copy(
-                            searchError = errorMessage,
-                            isSearching = false,
-                            canAddParticipant = false,
-                            currentSearchResult = null
-                        )
-                    }
-                }
-        }
+    private companion object {
+        val SEARCH_DEBOUNCE = 500.milliseconds
     }
 }

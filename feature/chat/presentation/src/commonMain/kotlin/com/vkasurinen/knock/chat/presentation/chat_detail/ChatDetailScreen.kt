@@ -25,6 +25,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -100,6 +101,7 @@ fun ChatDetailRoot(
     isDetailPresent: Boolean,
     onBack: () -> Unit,
     onChatMembersClick: () -> Unit,
+    onUserProfileClick: (userId: String) -> Unit,
     viewModel: ChatDetailViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -130,12 +132,6 @@ fun ChatDetailRoot(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             ChatDetailEvent.OnChatLeft -> onBack()
-            ChatDetailEvent.OnNewMessage -> {
-                scope.launch {
-                    messageListState.animateScrollToItem(0)
-                }
-            }
-
             is ChatDetailEvent.OnError -> {
                 showMessage(event.error.asStringAsync())
             }
@@ -148,6 +144,14 @@ fun ChatDetailRoot(
 
     LaunchedEffect(chatId) {
         viewModel.onAction(ChatDetailAction.OnSelectChat(chatId))
+    }
+
+    // Notifications for this chat that arrived while the app was in the background
+    LifecycleResumeEffect(chatId) {
+        viewModel.onAction(ChatDetailAction.OnScreenResumed)
+        onPauseOrDispose {
+            viewModel.onAction(ChatDetailAction.OnScreenPaused)
+        }
     }
 
     LaunchedEffect(chatId) {
@@ -175,6 +179,7 @@ fun ChatDetailRoot(
         onAction = { action ->
             when (action) {
                 is ChatDetailAction.OnChatMembersClick -> onChatMembersClick()
+                is ChatDetailAction.OnUserProfileClick -> onUserProfileClick(action.userId)
                 is ChatDetailAction.OnBackClick -> onBack()
                 is ChatDetailAction.OnAttachImagesClick -> imagePickerLauncher.launch()
                 is ChatDetailAction.OnRecordVoiceMessageClick -> {
@@ -251,6 +256,21 @@ fun ChatDetailScreen(
             .size
     }
 
+    // Follows new messages once the list contains them. Scrolling earlier, when the message has
+    // only reached the database, keeps the list anchored to the previous newest message and leaves
+    // the new one below the composer. The local user's own messages are always followed, others
+    // only when the list is already at the bottom.
+    val newestMessage = remember(state.messages) {
+        state.messages.firstOrNull { it !is MessageUi.DateSeparator }
+    }
+    LaunchedEffect(newestMessage?.id) {
+        val message = newestMessage ?: return@LaunchedEffect
+        val isOwnMessage = message is MessageUi.LocalUserMessage
+        if(isOwnMessage || messageListState.firstVisibleItemIndex <= NEAR_BOTTOM_ITEM_COUNT) {
+            messageListState.animateScrollToItem(0)
+        }
+    }
+
     LaunchedEffect(messageListState) {
         snapshotFlow {
             messageListState.firstVisibleItemIndex to messageListState.layoutInfo.totalItemsCount
@@ -288,7 +308,7 @@ fun ChatDetailScreen(
     }
     val density = LocalDensity.current
 
-    val isGroupChat = (state.chatUi?.otherParticipants?.size ?: 0) > 1
+    val isGroupChat = state.chatUi?.isGroup == true
 
     KnockChatWallpaper(
         modifier = Modifier.fillMaxSize()
@@ -338,6 +358,9 @@ fun ChatDetailScreen(
                             onManageChatClick = {
                                 onAction(ChatDetailAction.OnChatMembersClick)
                             },
+                            onUserProfileClick = { userId ->
+                                onAction(ChatDetailAction.OnUserProfileClick(userId))
+                            },
                             onLeaveChatClick = {
                                 onAction(ChatDetailAction.OnLeaveChatClick)
                             },
@@ -386,6 +409,9 @@ fun ChatDetailScreen(
                                     playbackState = playbackState,
                                     attachmentCallbacks = attachmentCallbacks,
                                     isGroupChat = isGroupChat,
+                                    onSenderClick = { userId ->
+                                        onAction(ChatDetailAction.OnUserProfileClick(userId))
+                                    },
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
@@ -576,3 +602,5 @@ private fun ChatDetailMessagesPreview() {
         )
     }
 }
+
+private const val NEAR_BOTTOM_ITEM_COUNT = 3

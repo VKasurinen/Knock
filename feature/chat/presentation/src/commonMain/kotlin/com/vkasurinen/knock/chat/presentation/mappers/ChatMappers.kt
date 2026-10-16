@@ -1,6 +1,7 @@
 package com.vkasurinen.knock.chat.presentation.mappers
 
 import com.vkasurinen.knock.chat.domain.models.Chat
+import com.vkasurinen.knock.chat.domain.models.ChatType
 import com.vkasurinen.knock.chat.presentation.model.ChatUi
 
 
@@ -10,6 +11,8 @@ fun Chat.toUi(localParticipantId: String): ChatUi {
         id = id,
         localParticipant = local.first().toUi(),
         otherParticipants = other.map { it.toUi() },
+        isGroup = type == ChatType.GROUP,
+        name = name,
         lastMessage = lastMessage,
         lastMessageSenderUsername = lastMessageSenderUsername,
         creatorId = creatorId,

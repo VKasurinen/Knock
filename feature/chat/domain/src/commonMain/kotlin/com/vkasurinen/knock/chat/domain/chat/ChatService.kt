@@ -7,12 +7,24 @@ import com.vkasurinen.knock.core.domain.util.Result
 
 interface ChatService {
     suspend fun createChat(
-        otherUserIds: List<String>
+        otherUserIds: List<String>,
+        name: String? = null
+    ): Result<Chat, DataError.Remote>
+
+    suspend fun renameChat(
+        chatId: String,
+        name: String?
     ): Result<Chat, DataError.Remote>
 
     suspend fun getChats(): Result<List<Chat>, DataError.Remote>
 
     suspend fun getChatById(chatId: String): Result<Chat, DataError.Remote>
+
+    /** The chat's messages have reached this device */
+    suspend fun markDelivered(chatId: String): EmptyResult<DataError.Remote>
+    /** The user has seen the chat's messages */
+    suspend fun markRead(chatId: String): EmptyResult<DataError.Remote>
+    suspend fun markAllDelivered(): EmptyResult<DataError.Remote>
 
     suspend fun leaveChat(chatId: String): EmptyResult<DataError.Remote>
     suspend fun removeParticipant(chatId: String, userId: String): EmptyResult<DataError.Remote>

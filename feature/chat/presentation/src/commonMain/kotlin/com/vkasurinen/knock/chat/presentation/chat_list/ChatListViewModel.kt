@@ -94,6 +94,11 @@ class ChatListViewModel(
                     selectedChatId = action.chatId
                 ) }
             }
+            is ChatListAction.OnFilterChange -> {
+                _state.update { it.copy(
+                    filter = action.filter
+                ) }
+            }
             ChatListAction.OnUserAvatarClick -> {
                 _state.update { it.copy(
                     isUserMenuOpen = true

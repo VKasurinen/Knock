@@ -2,6 +2,12 @@ package com.vkasurinen.knock.chat.presentation.chat_detail.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import com.vkasurinen.knock.core.designsystem.theme.extended
+import knock.core.designsystem.generated.resources.check_check_icon
+import knock.feature.chat.presentation.generated.resources.delivered
+import knock.feature.chat.presentation.generated.resources.read
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,12 +37,20 @@ fun MessageStatus(
                 vectorResource(Res.drawable.loading_icon)
         ChatMessageDeliveryStatus.SENT -> stringResource(Res.string.sent) to
                 vectorResource(Res.drawable.check_icon)
+        ChatMessageDeliveryStatus.DELIVERED -> stringResource(Res.string.delivered) to
+                vectorResource(DesignSystemRes.drawable.check_check_icon)
+        ChatMessageDeliveryStatus.READ -> stringResource(Res.string.read) to
+                vectorResource(DesignSystemRes.drawable.check_check_icon)
         ChatMessageDeliveryStatus.FAILED -> stringResource(Res.string.failed) to
                 vectorResource(DesignSystemRes.drawable.alert_icon)
     }
     Icon(
         imageVector = icon,
         contentDescription = description,
+        // Read messages stand out from delivered ones by color ("chat/read-receipt" in Figma)
+        tint = if(status == ChatMessageDeliveryStatus.READ) {
+            MaterialTheme.colorScheme.extended.readReceipt
+        } else LocalContentColor.current,
         modifier = modifier.size(14.dp)
     )
 }

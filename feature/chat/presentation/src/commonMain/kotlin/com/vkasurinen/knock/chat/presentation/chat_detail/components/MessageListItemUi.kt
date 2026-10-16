@@ -32,7 +32,8 @@ fun MessageListItemUi(
     playbackState: PlaybackState,
     attachmentCallbacks: AttachmentCallbacks,
     modifier: Modifier = Modifier,
-    isGroupChat: Boolean = false
+    isGroupChat: Boolean = false,
+    onSenderClick: ((userId: String) -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -63,7 +64,8 @@ fun MessageListItemUi(
                     message = messageUi,
                     isGroupChat = isGroupChat,
                     playbackState = playbackState,
-                    attachmentCallbacks = attachmentCallbacks
+                    attachmentCallbacks = attachmentCallbacks,
+                    onSenderClick = onSenderClick
                 )
             }
         }

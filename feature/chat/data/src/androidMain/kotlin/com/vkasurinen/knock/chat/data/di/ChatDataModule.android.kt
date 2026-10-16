@@ -10,6 +10,7 @@ import com.vkasurinen.knock.chat.data.audio.AndroidAudioRecorder
 import com.vkasurinen.knock.chat.data.lifecycle.AppLifecycleObserver
 import com.vkasurinen.knock.chat.data.network.ConnectionErrorHandler
 import com.vkasurinen.knock.chat.data.network.ConnectivityObserver
+import com.vkasurinen.knock.chat.data.notification.ChatNotifier
 import com.vkasurinen.knock.chat.data.notification.FirebasePushNotificationService
 import com.vkasurinen.knock.chat.database.DatabaseFactory
 import com.vkasurinen.knock.chat.domain.attachment.ImageCompressor
@@ -30,6 +31,7 @@ actual val platformChatDataModule = module {
     singleOf(::ConnectivityObserver)
     singleOf(::ConnectionErrorHandler)
 
+    single { ChatNotifier(androidContext()) }
     singleOf(::FirebasePushNotificationService) bind PushNotificationService::class
 
     single { AttachmentFileStorage(androidContext()) }

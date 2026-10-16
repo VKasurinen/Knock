@@ -41,6 +41,38 @@ interface ChatDao {
     @Transaction
     suspend fun getChatById(id: String): ChatWithParticipants?
 
+    @Query("""
+        SELECT c.*
+        FROM chatentity c
+        WHERE c.type = 'DIRECT'
+        AND c.isLocalUserRemoved = 0
+        AND EXISTS (
+            SELECT 1 FROM chatparticipantcrossref r
+            WHERE r.chatId = c.chatId AND r.userId = :otherUserId AND r.isActive = 1
+        )
+        LIMIT 1
+    """)
+    @Transaction
+    suspend fun getDirectChatWith(otherUserId: String): ChatWithParticipants?
+
+    @Query("""
+        SELECT c.*
+        FROM chatentity c
+        WHERE c.type = 'GROUP'
+        AND c.isLocalUserRemoved = 0
+        AND EXISTS (
+            SELECT 1 FROM chatparticipantcrossref r
+            WHERE r.chatId = c.chatId AND r.userId = :localUserId AND r.isActive = 1
+        )
+        AND EXISTS (
+            SELECT 1 FROM chatparticipantcrossref r
+            WHERE r.chatId = c.chatId AND r.userId = :otherUserId AND r.isActive = 1
+        )
+        ORDER BY c.lastActivityAt DESC
+    """)
+    @Transaction
+    fun getCommonGroups(localUserId: String, otherUserId: String): Flow<List<ChatWithParticipants>>
+
     @Query("UPDATE chatentity SET isLocalUserRemoved = 1 WHERE chatId = :chatId")
     suspend fun markLocalUserRemoved(chatId: String)
 

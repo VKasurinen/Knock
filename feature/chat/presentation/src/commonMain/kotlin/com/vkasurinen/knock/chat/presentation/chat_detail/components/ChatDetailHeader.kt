@@ -26,6 +26,7 @@ import knock.feature.chat.presentation.generated.resources.delete_chat
 import knock.feature.chat.presentation.generated.resources.go_back
 import knock.feature.chat.presentation.generated.resources.leave_chat
 import knock.feature.chat.presentation.generated.resources.open_chat_options_menu
+import knock.feature.chat.presentation.generated.resources.show_profile
 import knock.feature.chat.presentation.generated.resources.users_icon
 import com.vkasurinen.knock.chat.domain.models.ChatMessage
 import com.vkasurinen.knock.chat.domain.models.ChatMessageDeliveryStatus
@@ -55,6 +56,7 @@ fun ChatDetailHeader(
     onChatOptionsClick: () -> Unit,
     onDismissChatOptions: ()  -> Unit,
     onManageChatClick: () -> Unit,
+    onUserProfileClick: (userId: String) -> Unit,
     onLeaveChatClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -76,7 +78,8 @@ fun ChatDetailHeader(
         }
 
         if(chatUi != null) {
-            val isGroupChat = chatUi.otherParticipants.size > 1
+            val isGroupChat = chatUi.isGroup
+            val directChatUserId = chatUi.otherParticipants.firstOrNull()?.id
             ChatItemHeaderRow(
                 chat = chatUi,
                 isGroupChat = isGroupChat,
@@ -84,8 +87,11 @@ fun ChatDetailHeader(
                 modifier = Modifier
                     .weight(1f)
                     .floatingSurface(RoundedCornerShape(24.dp))
-                    .clickable(enabled = !chatUi.isLocalUserRemoved) {
-                        onManageChatClick()
+                    .clickable(
+                        enabled = !chatUi.isLocalUserRemoved && (isGroupChat || directChatUserId != null)
+                    ) {
+                        // Groups open the member list, direct chats the other user's profile
+                        if(isGroupChat) onManageChatClick() else directChatUserId?.let(onUserProfileClick)
                     }
                     .padding(start = 8.dp, end = 18.dp, top = 6.dp, bottom = 6.dp)
             )
@@ -104,13 +110,27 @@ fun ChatDetailHeader(
                 isOpen = isChatOptionsDropDownOpen,
                 onDismiss = onDismissChatOptions,
                 items = buildList {
-                    if(chatUi?.isLocalUserRemoved != true) {
+                    val directChatUserId = chatUi
+                        ?.takeIf { !it.isGroup }
+                        ?.otherParticipants
+                        ?.firstOrNull()
+                        ?.id
+                    if(chatUi?.isLocalUserRemoved != true && chatUi?.isGroup == true) {
                         add(
                             DropDownItem(
                                 title = stringResource(Res.string.chat_members),
                                 icon = vectorResource(Res.drawable.users_icon),
                                 contentColor = MaterialTheme.colorScheme.extended.textPrimary,
                                 onClick = onManageChatClick
+                            )
+                        )
+                    } else if(chatUi?.isLocalUserRemoved != true && directChatUserId != null) {
+                        add(
+                            DropDownItem(
+                                title = stringResource(Res.string.show_profile),
+                                icon = vectorResource(Res.drawable.users_icon),
+                                contentColor = MaterialTheme.colorScheme.extended.textPrimary,
+                                onClick = { onUserProfileClick(directChatUserId) }
                             )
                         )
                     }
@@ -176,6 +196,7 @@ fun ChatDetailHeaderPreview() {
                     ),
                     onChatOptionsClick = {},
                     onManageChatClick = {},
+                    onUserProfileClick = {},
                     onLeaveChatClick = {},
                     onDismissChatOptions = {},
                     onBackClick = {},

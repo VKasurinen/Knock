@@ -34,9 +34,13 @@ offline-first message cache, backed by a Spring Boot server described at the end
 |:---:|:---:|:---:|
 | ![Chat](docs/images/mobile-chat.png) | ![Group chat](docs/images/mobile-group-chat.png) | ![Recording a voice message](docs/images/mobile-voice-message.jpg) |
 
-| Create chat | Manage chat | Profile |
+| Create chat | Manage group | User profile |
 |:---:|:---:|:---:|
-| ![Create chat](docs/images/mobile-create-chat.png) | ![Manage chat](docs/images/mobile-manage-chat.png) | ![Profile](docs/images/mobile-profile.png) |
+| ![Create chat](docs/images/mobile-create-chat.png) | ![Manage group](docs/images/mobile-manage-chat.png) | ![User profile](docs/images/mobile-user-profile.png) |
+
+| Profile settings |
+|:---:|
+| ![Profile settings](docs/images/mobile-profile.png) |
 
 ### Dark theme
 
@@ -69,16 +73,22 @@ floating windows.
 
 ### Messaging
 - Real-time messaging over WebSockets with automatic reconnection
-- One-to-one and group chats
+- Direct messages and group chats, kept apart in the chat list with All, Direct and Groups tabs
+- Optional group names that the group's creator can change
 - Typing indicators
 - Image attachments with client-side compression, a full-screen image viewer and saving to the device
 - Voice messages with recording and playback
-- Message delivery states: sending, sent and failed, with retry for failed messages
+- Message states like in other messaging apps: sending, sent (one tick), delivered (two ticks) and
+  read (two green ticks), updated in real time, plus retry for failed messages
 - Deleting messages
 
 ### Chats and users
-- Creating chats by searching users by username or email
-- Adding and removing participants, and leaving a chat
+- Creating chats by searching users by username or email: tap a result to select it, tap again to
+  deselect
+- Starting a direct message returns the existing one instead of creating a duplicate
+- Adding and removing group members, and leaving a chat
+- User profiles with the profile picture, join date and groups in common, opened from a direct
+  message's header or a group member
 - Profile pictures
 
 ### Accounts and security
@@ -91,7 +101,9 @@ floating windows.
 ### Experience
 - Offline-first: chats and messages are cached in a local Room database and shown instantly
 - Connectivity awareness with automatic WebSocket reconnection
-- Push notifications on Android and iOS, native notifications and a system tray icon on desktop
+- Push notifications on Android and iOS, native notifications and a system tray icon on desktop.
+  On Android each chat has one notification with its latest messages; opening the chat marks
+  them read and clears the notification
 - Adaptive list-detail layout for phones, tablets and desktop windows
 - Light, dark and system themes
 - English and Finnish localization
@@ -253,6 +265,8 @@ track of each user's sessions and chats and broadcasts events to the participant
 | `MESSAGE_DELETED` | A message was deleted |
 | `USER_TYPING` | A participant is typing |
 | `CHAT_PARTICIPANTS_CHANGED` | Participants were added or left |
+| `CHAT_UPDATED` | A group was renamed |
+| `READ_STATE_CHANGED` | A participant received or read a chat's messages (delivered and read ticks) |
 | `PARTICIPANT_REMOVED` | A participant was removed from a chat |
 | `CHAT_DELETED` | A chat was deleted |
 | `PROFILE_PICTURE_UPDATED` | A participant changed their profile picture |
@@ -269,8 +283,14 @@ the URL. This keeps large uploads off the application server.
 ### Push notifications
 
 The `notification` module stores device tokens per user and sends new message notifications through
-Firebase Cloud Messaging to Android and iOS devices. Failed deliveries are retried with
-increasing delays.
+Firebase Cloud Messaging to Android and iOS devices. Android gets data-only messages and builds the
+notification itself, so a chat's messages stack into one notification that the app clears when the
+chat is opened. Failed deliveries are retried with increasing
+delays.
+
+Emails use Thymeleaf templates with a branded header image that is embedded in the email, so it
+shows without loading remote images. The backend also serves `/.well-known/assetlinks.json`, which
+lets Android open the verification and password reset links directly in the app.
 
 ### REST API overview
 
@@ -286,15 +306,20 @@ increasing delays.
 | POST | `/api/auth/reset-password` | Reset the password with a token |
 | POST | `/api/auth/change-password` | Change the password |
 | GET | `/api/chat` | List the user's chats |
-| POST | `/api/chat` | Create a chat |
+| POST | `/api/chat` | Create a chat: a direct message with one other user (or the existing one), a group with more |
 | GET | `/api/chat/{chatId}` | Get a chat |
+| PATCH | `/api/chat/{chatId}` | Rename a group (creator only) |
+| POST | `/api/chat/{chatId}/delivered` | Mark the chat's messages as delivered to this device |
+| POST | `/api/chat/{chatId}/read` | Mark the chat's messages as read |
+| POST | `/api/chat/delivered` | Mark every chat's messages as delivered |
 | GET | `/api/chat/{chatId}/messages` | Get messages of a chat, paginated |
-| POST | `/api/chat/{chatId}/add` | Add participants |
+| POST | `/api/chat/{chatId}/add` | Add members to a group |
 | DELETE | `/api/chat/{chatId}/participants/{userId}` | Remove a participant |
 | DELETE | `/api/chat/{chatId}/leave` | Leave a chat |
 | POST | `/api/chat/{chatId}/attachments/upload-urls` | Get signed upload URLs for attachments |
 | DELETE | `/api/messages/{messageId}` | Delete a message |
 | GET | `/api/participants` | Get the current user or search users |
+| GET | `/api/participants/{userId}` | Get a user's profile |
 | POST | `/api/participants/profile-picture-upload` | Get a signed upload URL for a profile picture |
 | POST | `/api/participants/confirm-profile-picture` | Confirm a profile picture upload |
 | DELETE | `/api/participants/profile-picture` | Delete the profile picture |

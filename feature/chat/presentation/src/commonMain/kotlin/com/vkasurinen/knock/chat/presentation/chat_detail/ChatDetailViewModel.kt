@@ -21,6 +21,7 @@ import com.vkasurinen.knock.chat.domain.audio.AudioPlayer
 import com.vkasurinen.knock.chat.domain.audio.AudioRecorder
 import com.vkasurinen.knock.chat.domain.chat.ChatConnectionClient
 import com.vkasurinen.knock.chat.domain.chat.ChatRepository
+import com.vkasurinen.knock.chat.domain.notification.PushNotificationService
 import com.vkasurinen.knock.chat.domain.message.MessageRepository
 import com.vkasurinen.knock.chat.domain.models.ChatEvent
 import com.vkasurinen.knock.chat.domain.models.ChatMessage
@@ -29,6 +30,7 @@ import com.vkasurinen.knock.chat.domain.models.MessageAttachment
 import com.vkasurinen.knock.chat.domain.models.OutgoingNewMessage
 import com.vkasurinen.knock.chat.domain.typing.TypingRepository
 import com.vkasurinen.knock.chat.presentation.mappers.toUi
+import com.vkasurinen.knock.chat.presentation.mappers.readReceipts
 import com.vkasurinen.knock.chat.presentation.mappers.toUiList
 import com.vkasurinen.knock.chat.presentation.model.ChatUi
 import com.vkasurinen.knock.chat.presentation.model.ImageViewerState
@@ -54,6 +56,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -84,7 +87,8 @@ class ChatDetailViewModel(
     private val imageCompressor: ImageCompressor,
     private val imageSaver: ImageSaver,
     private val audioRecorder: AudioRecorder,
-    private val audioPlayer: AudioPlayer
+    private val audioPlayer: AudioPlayer,
+    private val pushNotificationService: PushNotificationService
 ) : ViewModel() {
 
     // Both update every 100ms, so they are kept out of the main state to avoid
@@ -112,6 +116,9 @@ class ChatDetailViewModel(
         }
 
     private val _state = MutableStateFlow(ChatDetailState())
+
+    /** Whether the app is in the foreground with this chat open */
+    private val _isScreenVisible = MutableStateFlow(false)
 
     private val canSendMessage = combine(
         snapshotFlow { _state.value.messageTextFieldState.text.toString() }.map { it.isBlank() },
@@ -142,7 +149,10 @@ class ChatDetailViewModel(
         ChatContent(
             chatUi = chatInfo.chat.toUi(authInfo.user.id),
             messages = chatInfo.messages
-                .toUiList(authInfo.user.id)
+                .toUiList(
+                    localUserId = authInfo.user.id,
+                    readReceipts = chatInfo.chat.readReceipts(authInfo.user.id)
+                )
                 .withUploadProgress(uploadProgress)
         )
     }
@@ -181,11 +191,11 @@ class ChatDetailViewModel(
             if (!hasLoadedInitialData) {
                 observeSelectedChat()
                 observeConnectionState()
-                observeChatMessages()
                 observeCanSendMessage()
                 observeTypingUsers()
                 observeLocalUserTyping()
                 observeChatEvents()
+                observeReadMessages()
                 hasLoadedInitialData = true
             }
         }
@@ -198,6 +208,11 @@ class ChatDetailViewModel(
     fun onAction(action: ChatDetailAction) {
         when (action) {
             is ChatDetailAction.OnSelectChat -> switchChat(action.chatId)
+            ChatDetailAction.OnScreenResumed -> {
+                _isScreenVisible.value = true
+                _chatId.value?.let(pushNotificationService::clearChatNotifications)
+            }
+            ChatDetailAction.OnScreenPaused -> _isScreenVisible.value = false
             ChatDetailAction.OnChatOptionsClick -> onChatOptionsClick()
             is ChatDetailAction.OnDeleteMessageClick -> deleteMessage(action.message)
             ChatDetailAction.OnDismissChatOptions -> onDismissChatOptions()
@@ -604,35 +619,32 @@ class ChatDetailViewModel(
             .launchIn(viewModelScope)
     }
 
-    private fun observeChatMessages() {
-        val currentMessages = state
-            .map { it.messages }
-            .distinctUntilChanged()
-
-        val newMessages = _chatId.flatMapLatest { chatId ->
-            if (chatId != null) {
-                messageRepository.getMessagesForChat(chatId)
-            } else emptyFlow()
+    /**
+     * Marks the open chat as read whenever a new message from someone else shows up while the
+     * chat is on screen, which turns the sender's ticks into read ticks.
+     */
+    private fun observeReadMessages() {
+        val newestMessageFromOthers = combine(
+            chatInfoFlow,
+            sessionStorage.observeAuthInfo()
+        ) { chatInfo, authInfo ->
+            val localUserId = authInfo?.user?.id ?: return@combine null
+            chatInfo.messages
+                .filter { it.sender.userId != localUserId }
+                .maxByOrNull { it.message.createdAt }
+                ?.let { chatInfo.chat.id to it.message.id }
         }
 
-        val isNearBottom = state.map { it.isNearBottom }.distinctUntilChanged()
-
-        combine(
-            currentMessages,
-            newMessages,
-            isNearBottom
-        ) { currentMessages, newMessages, isNearBottom ->
-            val newestMessageId = newMessages.firstOrNull()?.message?.id
-            val currentNewestId = currentMessages
-                .asSequence()
-                .filterNot { it is MessageUi.DateSeparator }
-                .firstOrNull()
-                ?.id
-
-            if (newestMessageId != null && newestMessageId != currentNewestId && isNearBottom) {
-                eventChannel.send(ChatDetailEvent.OnNewMessage)
+        combine(newestMessageFromOthers, _isScreenVisible) { newest, isVisible ->
+            newest.takeIf { isVisible }
+        }
+            .filterNotNull()
+            .distinctUntilChanged()
+            .onEach { (chatId, _) ->
+                chatRepository.markChatRead(chatId)
+                pushNotificationService.clearChatNotifications(chatId)
             }
-        }.launchIn(viewModelScope)
+            .launchIn(viewModelScope)
     }
 
     private fun observeConnectionState() {
@@ -814,6 +826,7 @@ class ChatDetailViewModel(
         }
         _chatId.update { chatId }
         _state.update { it.copy(pendingAttachments = emptyList(), imageViewer = null) }
+        chatId?.let(pushNotificationService::clearChatNotifications)
         viewModelScope.launch {
             chatId?.let {
                 chatRepository.fetchChatById(chatId)

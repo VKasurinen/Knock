@@ -11,4 +11,5 @@ sealed interface ChatListAction {
     data object OnCreateChatClick: ChatListAction
     data object OnProfileSettingsClick: ChatListAction
     data class OnSelectChat(val chatId: String?): ChatListAction
+    data class OnFilterChange(val filter: ChatFilter): ChatListAction
 }

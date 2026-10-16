@@ -7,6 +7,9 @@ data class ChatUi(
     val id: String,
     val localParticipant: ChatParticipantUi,
     val otherParticipants: List<ChatParticipantUi>,
+    val isGroup: Boolean = false,
+    /** Group name chosen by the creator. Null for direct chats and unnamed groups. */
+    val name: String? = null,
     val lastMessage: ChatMessage?,
     val lastMessageSenderUsername: String?,
     val creatorId: String? = null,

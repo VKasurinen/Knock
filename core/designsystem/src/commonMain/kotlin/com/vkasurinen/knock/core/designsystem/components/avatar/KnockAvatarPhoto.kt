@@ -26,7 +26,7 @@ import com.vkasurinen.knock.core.designsystem.theme.titleXSmall
 
 
 enum class AvatarSize(val dp: Dp) {
-    XSMALL(32.dp), SMALL(40.dp), LARGE(56.dp)
+    XSMALL(32.dp), SMALL(40.dp), LARGE(56.dp), XLARGE(96.dp)
 }
 
 @Composable
@@ -63,6 +63,7 @@ fun KnockAvatarPhoto(
                 AvatarSize.XSMALL -> MaterialTheme.typography.labelXSmall
                 AvatarSize.SMALL -> MaterialTheme.typography.titleXSmall
                 AvatarSize.LARGE -> MaterialTheme.typography.titleSmall
+                AvatarSize.XLARGE -> MaterialTheme.typography.titleLarge
             },
             color = textColor
         )
