@@ -79,16 +79,16 @@ data class ExtendedColors(
 )
 
 val LightExtendedColors = ExtendedColors(
-    primaryHover = KnockWood700,
-    secondaryOutline = KnockWood300,
+    primaryHover = KnockOlive800,
+    secondaryOutline = KnockSand400,
     secondaryFill = KnockWood50,
     destructiveHover = KnockBrick700,
     destructiveSecondaryOutline = KnockBrick300,
     disabledOutline = KnockWood150,
     disabledFill = KnockWood100,
-    tertiary = KnockWood600,
-    successOutline = KnockSage300,
-    success = KnockSage600,
+    tertiary = KnockOlive700,
+    successOutline = KnockOlive300,
+    success = KnockOlive700,
     onSuccess = KnockWood50,
 
     textPrimary = KnockWood850,
@@ -100,35 +100,35 @@ val LightExtendedColors = ExtendedColors(
     textDestructive = KnockBrick600,
 
     surfaceContainer = KnockWood50,
-    surfaceTopBar = KnockWood150,
-    surfaceLower = KnockWood150,
-    surfaceHigher = KnockWood150,
+    surfaceTopBar = KnockSand200,
+    surfaceLower = KnockSand100,
+    surfaceHigher = KnockSand200,
     surfaceOutline = KnockWood850Alpha10,
     surfaceOnBg = KnockWood50,
     overlay = KnockWood1000Alpha70,
 
-    wallpaperTop = KnockWood200,
-    wallpaperMid = KnockWood300,
-    wallpaperBottom = KnockWood250,
-    wallpaperPattern = KnockWood500,
-    bubbleOutStart = KnockWood550,
-    bubbleOutEnd = KnockWood700,
+    wallpaperTop = KnockSand300,
+    wallpaperMid = KnockSand400,
+    wallpaperBottom = KnockSand300,
+    wallpaperPattern = KnockRust400,
+    bubbleOutStart = KnockRust600,
+    bubbleOutEnd = KnockRust700,
     onBubbleOut = KnockWood50,
     bubbleIn = KnockWood50,
     onBubbleIn = KnockWood850,
-    readReceipt = KnockMoss300,
+    readReceipt = KnockOlive200,
 
-    accentBrand = KnockBuff500,
-    onAccentBrand = KnockWood850,
-    quoteName = KnockCaramel800,
-    online = KnockSage500,
+    accentBrand = KnockOlive700,
+    onAccentBrand = KnockWood50,
+    quoteName = KnockOlive700,
+    online = KnockOlive500,
 
     avatarBackground = KnockWood300,
     onAvatar = KnockWood850,
 
     senderColors = listOf(
         KnockSenderCaramel,
-        KnockSenderOlive,
+        KnockOlive700,
         KnockSenderBerry,
         KnockSenderSlate,
         KnockSenderPlum,
@@ -136,22 +136,22 @@ val LightExtendedColors = ExtendedColors(
 )
 
 val DarkExtendedColors = ExtendedColors(
-    primaryHover = KnockWood300,
+    primaryHover = KnockOlive200,
     secondaryOutline = KnockEspresso600,
     secondaryFill = KnockEspresso850,
     destructiveHover = KnockBrick200,
     destructiveSecondaryOutline = KnockBrick600,
     disabledOutline = KnockEspresso750,
     disabledFill = KnockEspresso900,
-    tertiary = KnockBuff500,
-    successOutline = KnockSage600,
-    success = KnockSage300,
+    tertiary = KnockOlive300,
+    successOutline = KnockOlive700,
+    success = KnockOlive300,
     onSuccess = KnockEspresso1000,
 
     textPrimary = KnockWood100,
     textOnPrimary = KnockEspresso1000,
     textSecondary = KnockWood150,
-    textTertiary = KnockWood300,
+    textTertiary = KnockSand400,
     textPlaceholder = KnockWood300,
     textDisabled = KnockMocha500,
     textDestructive = KnockBrick200,
@@ -164,28 +164,28 @@ val DarkExtendedColors = ExtendedColors(
     surfaceOnBg = KnockWood50,
     overlay = KnockWood1000Alpha80,
 
-    wallpaperTop = KnockEspresso850,
-    wallpaperMid = KnockEspresso850,
-    wallpaperBottom = KnockEspresso850,
-    wallpaperPattern = KnockWood400,
-    bubbleOutStart = KnockBuff500,
-    bubbleOutEnd = KnockCaramel500,
-    onBubbleOut = KnockEspresso1000,
+    wallpaperTop = KnockRust950,
+    wallpaperMid = KnockRust950,
+    wallpaperBottom = KnockRust950,
+    wallpaperPattern = KnockSand500,
+    bubbleOutStart = KnockRust600,
+    bubbleOutEnd = KnockRust700,
+    onBubbleOut = KnockWood50,
     bubbleIn = KnockEspresso700,
     onBubbleIn = KnockWood100,
-    readReceipt = KnockMoss700,
+    readReceipt = KnockOlive200,
 
-    accentBrand = KnockBuff500,
+    accentBrand = KnockOlive300,
     onAccentBrand = KnockEspresso1000,
-    quoteName = KnockBuff500,
-    online = KnockSage300,
+    quoteName = KnockOlive300,
+    online = KnockOlive300,
 
     avatarBackground = KnockWood300,
     onAvatar = KnockEspresso900,
 
     senderColors = listOf(
         KnockSenderDarkCaramel,
-        KnockSenderDarkOlive,
+        KnockOlive300,
         KnockSenderDarkBerry,
         KnockSenderDarkSlate,
         KnockSenderDarkPlum,
@@ -193,7 +193,7 @@ val DarkExtendedColors = ExtendedColors(
 )
 
 val LightColorScheme = lightColorScheme(
-    primary = KnockWood600,
+    primary = KnockOlive700,
     onPrimary = KnockWood50,
     primaryContainer = KnockWood150,
     onPrimaryContainer = KnockWood850,
@@ -203,7 +203,7 @@ val LightColorScheme = lightColorScheme(
     secondaryContainer = KnockWood150,
     onSecondaryContainer = KnockWood850,
 
-    tertiary = KnockWood600,
+    tertiary = KnockOlive700,
     onTertiary = KnockWood50,
     tertiaryContainer = KnockTuscan300,
     onTertiaryContainer = KnockWood850,
@@ -213,11 +213,11 @@ val LightColorScheme = lightColorScheme(
     errorContainer = KnockBrick200,
     onErrorContainer = KnockBrick700,
 
-    background = KnockWood700,
+    background = KnockRust700,
     onBackground = KnockWood50,
     surface = KnockWood50,
     onSurface = KnockWood850,
-    surfaceVariant = KnockWood150,
+    surfaceVariant = KnockSand200,
     onSurfaceVariant = KnockMocha700,
     surfaceContainer = KnockWood50,
 
@@ -227,7 +227,7 @@ val LightColorScheme = lightColorScheme(
 )
 
 val DarkColorScheme = darkColorScheme(
-    primary = KnockWood400,
+    primary = KnockOlive300,
     onPrimary = KnockEspresso1000,
     primaryContainer = KnockEspresso750,
     onPrimaryContainer = KnockWood100,
@@ -237,7 +237,7 @@ val DarkColorScheme = darkColorScheme(
     secondaryContainer = KnockEspresso750,
     onSecondaryContainer = KnockWood100,
 
-    tertiary = KnockBuff500,
+    tertiary = KnockOlive300,
     onTertiary = KnockEspresso1000,
     tertiaryContainer = KnockEspresso750,
     onTertiaryContainer = KnockWood100,
@@ -247,7 +247,7 @@ val DarkColorScheme = darkColorScheme(
     errorContainer = KnockBrick600,
     onErrorContainer = KnockBrick200,
 
-    background = KnockEspressoBrand,
+    background = KnockRust800,
     onBackground = KnockWood50,
     surface = KnockEspresso850,
     onSurface = KnockWood100,

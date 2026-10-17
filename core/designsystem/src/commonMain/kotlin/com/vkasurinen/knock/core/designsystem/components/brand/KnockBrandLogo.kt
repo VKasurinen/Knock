@@ -16,14 +16,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.vkasurinen.knock.core.designsystem.theme.KnockTheme
 import com.vkasurinen.knock.core.designsystem.theme.KnockWood50
-import com.vkasurinen.knock.core.designsystem.theme.KnockWood700
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /**
  * Knock logo "D — K in a speech bubble": a speech bubble with the K cut out of it.
  *
  * With [onBrand] the logo sits on the brand background (surface/bg) and the bubble is
- * always Cream. Otherwise it is Walnut (btn/primary) on light surfaces and Cream on dark ones.
+ * always Cream. Otherwise it is Olive (btn/primary) on light surfaces and Cream on dark ones.
  */
 @Composable
 fun KnockBrandLogo(
@@ -32,7 +31,7 @@ fun KnockBrandLogo(
     onBrand: Boolean = true,
 ) {
     val isDarkSurface = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    val color = if(onBrand || isDarkSurface) KnockWood50 else KnockWood700
+    val color = if(onBrand || isDarkSurface) KnockWood50 else MaterialTheme.colorScheme.primary
     val vector = remember(color) { bubbleLogoVector(color) }
     Image(
         imageVector = vector,

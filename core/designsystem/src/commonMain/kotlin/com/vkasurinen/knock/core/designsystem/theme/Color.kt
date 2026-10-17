@@ -44,6 +44,28 @@ val KnockSage300 = Color(0xFFA9B97A)
 val KnockMoss300 = Color(0xFFB4DC8C)
 val KnockMoss700 = Color(0xFF2F6B1F)
 
+// Rust: outgoing bubbles and the brand background
+val KnockRust950 = Color(0xFF2B1B13)
+val KnockRust800 = Color(0xFF66351D)
+val KnockRust700 = Color(0xFF7C4226)
+val KnockRust600 = Color(0xFF91522F)
+val KnockRust400 = Color(0xFFB5764F)
+val KnockRust300 = Color(0xFFCC8D63)
+
+// Sand: chat wallpaper and raised surfaces
+val KnockSand100 = Color(0xFFF5E6D6)
+val KnockSand200 = Color(0xFFEDCFB2)
+val KnockSand300 = Color(0xFFE3B993)
+val KnockSand400 = Color(0xFFD8A37B)
+val KnockSand500 = Color(0xFFC58C62)
+
+// Olive: accent and primary buttons
+val KnockOlive800 = Color(0xFF44462A)
+val KnockOlive700 = Color(0xFF555832)
+val KnockOlive500 = Color(0xFF787B4A)
+val KnockOlive300 = Color(0xFFA9AC7A)
+val KnockOlive200 = Color(0xFFCDD0A0)
+
 // Brick
 val KnockBrick700 = Color(0xFF8E3226)
 val KnockBrick600 = Color(0xFFA63D2F)
